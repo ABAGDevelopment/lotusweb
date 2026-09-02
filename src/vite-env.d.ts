@@ -1,11 +1,11 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_SANITY_PROJECT_ID?: string
-  readonly VITE_SANITY_DATASET?: string
-  readonly VITE_SANITY_API_VERSION?: string
-  readonly VITE_SANITY_USE_CDN?: string
-  readonly VITE_ENQUIRY_ENDPOINT?: string
+  readonly SANITY_PROJECT_ID?: string
+  readonly SANITY_DATASET?: string
+  readonly SANITY_API_VERSION?: string
+  readonly SANITY_USE_CDN?: string
+  readonly ENQUIRY_ENDPOINT?: string
 }
 
 interface ImportMeta {

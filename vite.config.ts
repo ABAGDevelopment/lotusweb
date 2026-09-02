@@ -11,7 +11,7 @@ import path from 'path'
  * prefix. Anything absent from this list — SANITY_WRITE_TOKEN above all —
  * cannot reach the browser bundle, which is the point.
  *
- * Do NOT switch this to `envPrefix: ['SANITY_']`: that would inline
+ * Do NOT replace this with `envPrefix: ['SANITY_']`: that would inline
  * SANITY_WRITE_TOKEN into public JavaScript, handing every visitor write
  * access to the dataset.
  */
@@ -40,7 +40,11 @@ export default defineConfig(({ mode }) => {
     base: process.env.BASE_PATH || '/',
     plugins: [react()],
     define,
-    resolve: { alias: { '@': path.resolve(__dirname, './src') } },
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+      },
+    },
     server: { host: true, port: 5173 },
     preview: { port: 4173 },
     build: { outDir: 'dist', sourcemap: false },

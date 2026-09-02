@@ -5,7 +5,7 @@ type Reason = 'unconfigured' | 'empty' | 'error'
 const COPY: Record<Reason, { title: string; body: string }> = {
   unconfigured: {
     title: 'Sanity is not connected yet',
-    body: 'Add VITE_SANITY_PROJECT_ID and VITE_SANITY_DATASET to apps/web/.env, then restart the dev server.',
+    body: 'Add SANITY_PROJECT_ID and SANITY_DATASET to apps/web/.env, then restart the dev server.',
   },
   empty: {
     title: 'No published content found',
