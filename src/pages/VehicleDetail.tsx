@@ -9,6 +9,7 @@ import Spin360 from '@/components/common/Spin360'
 import PageSkeleton from '@/components/common/PageSkeleton'
 import NotFound from '@/pages/NotFound'
 import { useLocale } from '@/i18n/LocaleProvider'
+import { useTestDrive } from '@/components/testdrive/TestDriveProvider'
 import { ui } from '@/i18n/ui'
 import { useLiveQuery } from '@/sanity/useLiveQuery'
 import { VEHICLE_QUERY } from '@/sanity/queries'
@@ -24,6 +25,7 @@ const CATEGORY_LABEL: Record<GalleryCategory, { en: string; ar: string }> = {
 export default function VehicleDetail() {
   const { slug } = useParams<{ slug: string }>()
   const { t, locale, localePath, isRtl } = useLocale()
+  const testDrive = useTestDrive()
   const { data, loading } = useLiveQuery<VehicleDoc>(VEHICLE_QUERY, { slug: slug ?? '' })
   const [filter, setFilter] = useState<GalleryCategory | 'all'>('all')
 
@@ -79,12 +81,13 @@ export default function VehicleDetail() {
             </h1>
             <p className="text-lg text-lotus-text-muted mt-3 max-w-xl">{t(data.tagline)}</p>
             <div className="flex flex-wrap gap-4 mt-8">
-              <Link
-                to={localePath(`/test-drive?model=${data.slug ?? ''}`)}
+              <button
+                type="button"
+                onClick={() => testDrive.open(data.slug ?? undefined)}
                 className="btn-primary px-10 py-4 text-sm font-bold tracking-widest uppercase"
               >
                 {ui(locale, 'bookTestDrive')}
-              </Link>
+              </button>
             </div>
           </div>
         </section>

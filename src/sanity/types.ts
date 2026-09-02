@@ -110,6 +110,7 @@ export interface TestDriveLabels {
   email?: LocaleString | null
   phone?: LocaleString | null
   model?: LocaleString | null
+  location?: LocaleString | null
   preferredDate?: LocaleString | null
   message?: LocaleString | null
   consent?: LocaleString | null
@@ -127,6 +128,7 @@ export interface TestDrivePage {
   intro?: LocaleText | null
   image?: Figure | null
   modelPlaceholder?: LocaleString | null
+  locationPlaceholder?: LocaleString | null
   labels?: TestDriveLabels | null
   thankYou?: {
     eyebrow?: LocaleString | null
@@ -177,6 +179,7 @@ export interface ServiceFeature {
 
 export interface Showroom {
   _id: string
+  image?: Figure | null
   name?: LocaleString | null
   locationLabel?: LocaleString | null
   address?: LocaleText | null

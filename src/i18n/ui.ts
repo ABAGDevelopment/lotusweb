@@ -30,6 +30,9 @@ const UI = {
     specifications: 'Specifications',
     all: 'All',
     zoomHint: 'Hover to zoom — tap on mobile',
+    back: 'Back',
+    next: 'Next',
+    yourDetails: 'Your details',
   },
   ar: {
     previousOffers: 'العروض السابقة',
@@ -51,6 +54,9 @@ const UI = {
     specifications: 'المواصفات',
     all: 'الكل',
     zoomHint: 'مرّر المؤشر للتكبير — انقر على الجوال',
+    back: 'رجوع',
+    next: 'التالي',
+    yourDetails: 'بياناتك',
   },
 } as const
 

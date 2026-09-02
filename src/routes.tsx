@@ -1,11 +1,13 @@
 import type { RouteObject } from 'react-router-dom'
-import { Navigate } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import Index from '@/pages/Index'
 import NotFound from '@/pages/NotFound'
 import VehicleDetail from '@/pages/VehicleDetail'
 import TestDrive from '@/pages/TestDrive'
 import ThankYou from '@/pages/ThankYou'
 import { LOCALES, LocaleProvider } from '@/i18n/LocaleProvider'
+import { TestDriveProvider } from '@/components/testdrive/TestDriveProvider'
+import ScrollManager from '@/components/common/ScrollManager'
 import type { Locale } from '@/sanity/types'
 
 /**
@@ -15,6 +17,23 @@ import type { Locale } from '@/sanity/types'
  * Exported as data (not JSX) so the paths can be asserted in a test — a
  * mistyped path here is otherwise invisible until someone clicks the link.
  */
+/**
+ * Locale context wraps the test-drive modal, not the other way round: the
+ * modal renders CMS copy through `t()`, so it must sit inside the provider.
+ * Mounting it above the router throws "useLocale must be used inside
+ * <LocaleProvider>" on first paint.
+ */
+function LocaleLayout({ locale, defaultLocale }: { locale: Locale; defaultLocale: Locale }) {
+  return (
+    <LocaleProvider locale={locale} defaultLocale={defaultLocale}>
+      <TestDriveProvider>
+        <ScrollManager />
+        <Outlet />
+      </TestDriveProvider>
+    </LocaleProvider>
+  )
+}
+
 export function buildRoutes(defaultLocale: Locale): RouteObject[] {
   const pages: RouteObject[] = [
     { index: true, element: <Index /> },
@@ -29,12 +48,12 @@ export function buildRoutes(defaultLocale: Locale): RouteObject[] {
   return [
     {
       path: '/',
-      element: <LocaleProvider locale={defaultLocale} defaultLocale={defaultLocale} />,
+      element: <LocaleLayout locale={defaultLocale} defaultLocale={defaultLocale} />,
       children: pages,
     },
     ...others.map<RouteObject>((locale) => ({
       path: `/${locale}`,
-      element: <LocaleProvider locale={locale} defaultLocale={defaultLocale} />,
+      element: <LocaleLayout locale={locale} defaultLocale={defaultLocale} />,
       children: pages,
     })),
     // The default language's own prefix duplicates the root.
@@ -49,6 +68,7 @@ export const EXPECTED_PATHS = [
   '/test-drive',
   '/test-drive/thank-you',
   '/ar',
+  '/ar/',
   '/ar/vehicles/emira',
   '/ar/test-drive',
   '/ar/test-drive/thank-you',

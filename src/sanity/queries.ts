@@ -221,9 +221,10 @@ export const TEST_DRIVE_QUERY = /* groq */ `*[_type == "testDrivePage"][0]{
   intro,
   image ${FIGURE},
   labels{
-    fullName, email, phone, model, preferredDate, message,
+    fullName, email, phone, model, location, preferredDate, message,
     consent, submit, submitting, required, invalidEmail, errorTitle, errorBody
   },
+  locationPlaceholder,
   modelPlaceholder,
   thankYou{
     eyebrow,
@@ -234,4 +235,12 @@ export const TEST_DRIVE_QUERY = /* groq */ `*[_type == "testDrivePage"][0]{
     image ${FIGURE}
   },
   seo{ title, description, ogImage ${FIGURE} }
+}`
+
+/** Showroom options for the "preferred location" dropdown. */
+export const SHOWROOM_OPTIONS_QUERY = /* groq */ `*[_type == "showroom"]{
+  _id,
+  name,
+  address,
+  image ${FIGURE}
 }`

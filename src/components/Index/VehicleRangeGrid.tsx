@@ -2,13 +2,24 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRightLong } from '@fortawesome/free-solid-svg-icons'
 import { Link } from 'react-router-dom'
 import CmsLink from '@/components/common/CmsLink'
+import { useTestDrive } from '@/components/testdrive/TestDriveProvider'
 import SanityImage from '@/components/common/SanityImage'
 import { useLocale } from '@/i18n/LocaleProvider'
 import type { RangeSectionData } from '@/sanity/types'
 import MissingContent from '@/components/common/MissingContent'
 
+/**
+ * An anchor-only href ('#range') is legacy seed data, not a deliberate
+ * override — treat only a path or absolute URL as one.
+ */
+function isRealOverride(href?: string | null): boolean {
+  if (!href) return false
+  return !href.startsWith('#')
+}
+
 export default function VehicleRangeGrid({ data }: { data?: RangeSectionData | null }) {
   const { t, isRtl, localePath } = useLocale()
+  const testDrive = useTestDrive()
   if (!data) return null
 
   const vehicles = (data.vehicles ?? []).filter(Boolean)
@@ -45,16 +56,37 @@ export default function VehicleRangeGrid({ data }: { data?: RangeSectionData | n
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {vehicles.map((vehicle) => (
           <article key={vehicle._id} className="vehicle-card group cursor-pointer">
-            <div className="aspect-[4/5] overflow-hidden bg-lotus-grey rounded-sm mb-6 relative">
+            {/* The whole image is the primary target — people click the car,
+                not the small text link underneath. */}
+            <Link
+              to={
+                vehicle.slug && !isRealOverride(vehicle.discoverLink?.href)
+                  ? localePath(`/vehicles/${vehicle.slug}`)
+                  : (vehicle.discoverLink?.href ?? '#')
+              }
+              aria-label={t(vehicle.name)}
+              className="block aspect-[4/5] overflow-hidden bg-lotus-grey rounded-sm mb-6 relative focus:outline-none focus:ring-2 focus:ring-lotus-yellow"
+            >
               <SanityImage
                 image={vehicle.image}
                 fallbackAlt={t(vehicle.name)}
                 sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
                 className="card-hover-img w-full h-full object-cover"
               />
-            </div>
+            </Link>
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold uppercase tracking-wide">{t(vehicle.name)}</h3>
+              <h3 className="text-2xl font-bold uppercase tracking-wide">
+                <Link
+                  to={
+                    vehicle.slug && !isRealOverride(vehicle.discoverLink?.href)
+                      ? localePath(`/vehicles/${vehicle.slug}`)
+                      : (vehicle.discoverLink?.href ?? '#')
+                  }
+                  className="hover:text-lotus-yellow transition-colors"
+                >
+                  {t(vehicle.name)}
+                </Link>
+              </h3>
               <p className="text-lotus-text-muted text-sm">{t(vehicle.tagline)}</p>
               {(vehicle.specs ?? []).length > 0 ? (
                 <div className="flex gap-4 pt-2 text-xs font-bold tracking-widest text-lotus-text-faint">
@@ -66,15 +98,16 @@ export default function VehicleRangeGrid({ data }: { data?: RangeSectionData | n
                 </div>
               ) : null}
               <div className="pt-4 flex gap-4 text-xs font-bold tracking-widest uppercase">
-                {/* The destination is derived from the slug so a new vehicle
-                    works without anyone editing a URL. The CMS href still wins
-                    if an editor sets one explicitly. */}
-                {vehicle.slug && !vehicle.discoverLink?.href ? (
+                {/* Discover always goes to the detail page. A legacy anchor
+                    href (#range) is ignored — it can only ever scroll the
+                    user back to where they already are. Only a real path or
+                    URL overrides the slug route. */}
+                {vehicle.slug && !isRealOverride(vehicle.discoverLink?.href) ? (
                   <Link
                     to={localePath(`/vehicles/${vehicle.slug}`)}
                     className="hover:text-lotus-yellow underline decoration-lotus-yellow underline-offset-4"
                   >
-                    {t(vehicle.discoverLink?.label)}
+                    {t(vehicle.discoverLink?.label, 'Discover')}
                   </Link>
                 ) : (
                   <CmsLink
@@ -82,19 +115,13 @@ export default function VehicleRangeGrid({ data }: { data?: RangeSectionData | n
                     className="hover:text-lotus-yellow underline decoration-lotus-yellow underline-offset-4"
                   />
                 )}
-                {vehicle.slug && !vehicle.testDriveLink?.href ? (
-                  <Link
-                    to={localePath(`/test-drive?model=${vehicle.slug}`)}
-                    className="hover:text-lotus-yellow underline decoration-lotus-yellow underline-offset-4"
-                  >
-                    {t(vehicle.testDriveLink?.label)}
-                  </Link>
-                ) : (
-                  <CmsLink
-                    link={vehicle.testDriveLink}
-                    className="hover:text-lotus-yellow underline decoration-lotus-yellow underline-offset-4"
-                  />
-                )}
+                <button
+                  type="button"
+                  onClick={() => testDrive.open(vehicle.slug ?? undefined)}
+                  className="uppercase hover:text-lotus-yellow underline decoration-lotus-yellow underline-offset-4"
+                >
+                  {t(vehicle.testDriveLink?.label, 'Test Drive')}
+                </button>
               </div>
             </div>
           </article>

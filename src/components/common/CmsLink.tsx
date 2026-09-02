@@ -1,6 +1,11 @@
 import type { ReactNode } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { LOCALES, useLocale } from '@/i18n/LocaleProvider'
+import {
+  isTestDriveHref,
+  modelFromHref,
+  useTestDrive,
+} from '@/components/testdrive/TestDriveProvider'
 import type { Link as CmsLinkData } from '@/sanity/types'
 
 interface CmsLinkProps {
@@ -15,6 +20,17 @@ interface CmsLinkProps {
 
 function isInternalRoute(href: string) {
   return href.startsWith('/') && !href.startsWith('//')
+}
+
+/**
+ * A real in-page anchor (#range), as opposed to a placeholder '#'.
+ *
+ * Every section these point at lives on the home page. A bare <a href="#range">
+ * does nothing from a vehicle or test-drive page, which is why the top nav
+ * appeared dead everywhere except home.
+ */
+function isSectionAnchor(href: string) {
+  return href.startsWith('#') && href.length > 1
 }
 
 /** An editor may already have written the prefix; don't add a second one. */
@@ -35,6 +51,7 @@ export default function CmsLink({
   hideWhenEmpty = true,
 }: CmsLinkProps) {
   const { t, localePath } = useLocale()
+  const testDrive = useTestDrive()
   const label = t(link?.label, fallbackLabel)
   const content = children ?? label
   const href = link?.href?.trim()
@@ -49,11 +66,37 @@ export default function CmsLink({
     )
   }
 
+  // Any CMS button pointing at /test-drive opens the modal rather than
+  // navigating. One interception point, so every existing CTA — nav, hero,
+  // sticky bar, closing section — becomes a modal trigger with no content
+  // change. The route still exists for direct links and SEO.
+  if (isTestDriveHref(href)) {
+    return (
+      <button
+        type="button"
+        className={className}
+        onClick={() => testDrive.open(modelFromHref(href))}
+      >
+        {content}
+      </button>
+    )
+  }
+
   if (link?.external) {
     return (
       <a className={className} href={href} target="_blank" rel="noopener noreferrer">
         {content}
       </a>
+    )
+  }
+
+  // Route to the home page and carry the hash; ScrollManager does the
+  // scrolling once the section exists.
+  if (isSectionAnchor(href)) {
+    return (
+      <RouterLink className={className} to={{ pathname: localePath('/'), hash: href }}>
+        {content}
+      </RouterLink>
     )
   }
 
