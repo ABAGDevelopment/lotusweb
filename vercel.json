@@ -2,8 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
-      "//": "SPA fallback for client-side routes (/ar, /vehicles/emira, ...) while leaving /api and static assets alone.",
-      "source": "/((?!api/|assets/|favicon).*)",
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]
