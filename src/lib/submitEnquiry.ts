@@ -19,6 +19,9 @@ export interface EnquiryPayload {
  */
 const ENDPOINT = (import.meta.env.ENQUIRY_ENDPOINT ?? '').trim()
 
+/** Vercel functions time out around 10s; allow a little headroom. */
+const TIMEOUT_MS = 20_000
+
 export async function submitEnquiry(payload: EnquiryPayload): Promise<void> {
   if (!ENDPOINT) {
     if (import.meta.env.DEV) {
@@ -34,14 +37,39 @@ export async function submitEnquiry(payload: EnquiryPayload): Promise<void> {
     throw new Error('Enquiry endpoint is not configured (ENQUIRY_ENDPOINT).')
   }
 
-  const response = await fetch(ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
+  // Without a timeout a stalled endpoint leaves the button spinning forever
+  // with nothing to tell the user. Fail loudly instead.
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS)
+
+  let response: Response
+  try {
+    response = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    })
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error(
+        `The server did not respond within ${TIMEOUT_MS / 1000}s. Please try again, or call the showroom.`,
+      )
+    }
+    throw error
+  } finally {
+    clearTimeout(timeout)
+  }
 
   if (!response.ok) {
     const detail = await response.text().catch(() => '')
-    throw new Error(`Submission failed (${response.status}). ${detail}`.trim())
+    // An HTML body means the request hit the SPA fallback rather than the
+    // function — usually a missing /api exclusion in vercel.json.
+    const looksLikeHtml = detail.trimStart().startsWith('<')
+    throw new Error(
+      looksLikeHtml
+        ? `Submission failed (${response.status}): the endpoint returned HTML, not JSON. Check that ${ENDPOINT} is deployed as a function.`
+        : `Submission failed (${response.status}). ${detail}`.trim(),
+    )
   }
 }

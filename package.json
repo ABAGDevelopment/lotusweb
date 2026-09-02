@@ -10,8 +10,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "smoke": "vite build --ssr smoke.tsx --outDir .smoke --logLevel error && node .smoke/smoke.js",
-    "verify": "npm run typecheck && npm run smoke && npm run navtest && npm run build",
-    "navtest": "vite build --ssr navtest.tsx --outDir .navtest --logLevel error && node .navtest/navtest.js"
+    "verify": "npm run typecheck && npm run smoke && npm run navtest && npm run apitest && npm run build",
+    "navtest": "vite build --ssr navtest.tsx --outDir .navtest --logLevel error && node .navtest/navtest.js",
+    "apitest": "vite build --ssr apitest.ts --outDir .apitest --logLevel error && node .apitest/apitest.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
