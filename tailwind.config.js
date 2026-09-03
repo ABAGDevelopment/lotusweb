@@ -74,8 +74,42 @@ export default {
         },
       },
       fontFamily: {
-        display: ['Oswald', 'sans-serif'],
-        sans: ['Inter', 'sans-serif'],},
+        display: [
+          // Licensed Lotus headline face, self-hosted in /public/fonts.
+          // Name matches the font's internal family exactly.
+          'Overpass Lotus Headlines ExLight',
+          'Overpass',
+          'Source Han Sans CN ExtraLight',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Oxygen',
+          'Ubuntu',
+          'Cantarell',
+          'Fira Sans',
+          'Droid Sans',
+          'Helvetica Neue',
+          'sans-serif',
+        ],
+        sans: [
+          // Body copy uses Overpass proper. The headline face is a single
+          // display cut and is deliberately NOT in this stack.
+          'Overpass',
+          'Source Han Sans CN ExtraLight',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Oxygen',
+          'Ubuntu',
+          'Cantarell',
+          'Fira Sans',
+          'Droid Sans',
+          'Helvetica Neue',
+          'sans-serif',
+        ],
+      },
       keyframes: {
         'accordion-down': {
           from: { height: '0' },

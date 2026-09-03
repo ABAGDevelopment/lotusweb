@@ -1,0 +1,70 @@
+/**
+ * Self-hosted Lotus brand typography.
+ *
+ * Family names below are taken from each file's internal `name` table, not
+ * from the marketing stack — the headline face reports itself as
+ * "Overpass Lotus Headlines ExLight" (capital L), and a mismatched name here
+ * silently falls through to the next font in the stack.
+ *
+ * Served from /public/fonts as woff2 (1081K of TTF/OTF -> 419K). Licensed
+ * brand assets: keep them out of any public CDN or third-party host.
+ */
+
+/* ---- Headline face -------------------------------------------------- */
+/*
+ * A single optical cut (usWeightClass 250). The weight range is deliberately
+ * wide so that any weight the UI asks for resolves to this file instead of
+ * the browser synthesising a fake bold from it.
+ */
+@font-face {
+  font-family: 'Overpass Lotus Headlines ExLight';
+  src: url('/fonts/OverpassLotusHeadlines-ExLight.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---- Body family ---------------------------------------------------- */
+/* Only the weights the UI actually uses; no italics — none are used. */
+@font-face {
+  font-family: 'Overpass';
+  src: url('/fonts/Overpass-ExtraLight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Overpass';
+  src: url('/fonts/Overpass-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Overpass';
+  src: url('/fonts/Overpass-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Overpass';
+  src: url('/fonts/Overpass-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Overpass';
+  src: url('/fonts/Overpass-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Overpass';
+  src: url('/fonts/Overpass-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

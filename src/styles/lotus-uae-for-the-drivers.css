@@ -1,6 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Oswald:wght@400;700&display=swap');
+/* Brand faces are self-hosted from /public/fonts — no Google Fonts request
+   for Latin text, so the headline face is available on first paint. */
+@import './brand-font.css';
 /* Arabic faces: Noto Kufi for display, IBM Plex Sans Arabic for body copy. */
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap');
+
+/* ------------------------------------------------------------------ */
+/* Brand typography                                                    */
+/*                                                                     */
+/* lotuscars.com sets headlines in an ExtraLight weight, not bold. The */
+/* weight lives in one variable so it is a one-line revert if you      */
+/* prefer the heavier treatment this site shipped with.                */
+/* ------------------------------------------------------------------ */
+:root {
+  --lotus-display-weight: 200;
+  --lotus-display-tracking: 0.02em;
+}
 
 body {
   background-color: #0f0f0f;
@@ -25,6 +39,13 @@ html {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #ffdf00;
+}
+
+/* Headlines follow the brand weight rather than Tailwind's font-bold.
+   Set --lotus-display-weight to 700 to restore the original look. */
+.font-display {
+  font-weight: var(--lotus-display-weight) !important;
+  letter-spacing: var(--lotus-display-tracking) !important;
 }
 
 .text-outline {
@@ -126,8 +147,10 @@ html {
 /* Oswald has no Arabic coverage; swap the display face and drop the
    tight tracking, which mangles connected Arabic script. */
 [dir='rtl'] .font-display {
-  font-family: 'Noto Kufi Arabic', 'Oswald', sans-serif;
+  font-family: 'Noto Kufi Arabic', sans-serif;
   letter-spacing: 0 !important;
+  /* Noto Kufi has no ExtraLight; 300 is its lightest usable weight. */
+  font-weight: 300 !important;
 }
 
 /* Casing is meaningless in Arabic and `uppercase` can break shaping. */

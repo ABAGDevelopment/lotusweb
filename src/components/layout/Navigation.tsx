@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import CmsLink from '@/components/common/CmsLink'
+import LotusLogo from '@/components/common/LotusLogo'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { useSite } from '@/sanity/ContentProvider'
 import { cn } from '@/lib/utils'
@@ -56,9 +57,12 @@ export default function Navigation() {
         <div className="flex items-center gap-12">
           <Link
             to={pathFor(locale)}
-            className="font-display text-2xl font-bold tracking-tighter uppercase"
+            aria-label={nav?.logoText || 'Lotus'}
+            className="block text-lotus-text-off hover:text-lotus-yellow transition-colors focus:outline-none focus:ring-2 focus:ring-lotus-yellow"
           >
-            {nav?.logoText || 'Lotus'}
+            {/* currentColor comes from the classes above, so the mark is
+                off-white in the header and yellow on hover. */}
+            <LotusLogo title={nav?.logoText || 'Lotus'} className="h-6 w-auto" />
           </Link>
           {nav?.statusBadge?.enabled !== false && t(nav?.statusBadge?.label) ? (
             <div className="hidden lg:flex items-center gap-1 text-xs font-medium tracking-widest text-lotus-text-muted">
