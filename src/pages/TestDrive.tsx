@@ -1,6 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import '@/styles/lotus-uae-for-the-drivers.css'
-import Navigation from '@/components/layout/Navigation'
+import Navbar from '@/components/Navbar'
 import Footer from '@/components/layout/Footer'
 import SanityImage from '@/components/common/SanityImage'
 import PageSkeleton from '@/components/common/PageSkeleton'
@@ -25,7 +25,7 @@ export default function TestDrive() {
 
   return (
     <div className="antialiased selection:bg-lotus-yellow selection:text-lotus-black">
-      <Navigation />
+      <Navbar />
       <main className="pt-32 pb-24 px-5 md:px-8 lg:px-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           <div className="space-y-6">

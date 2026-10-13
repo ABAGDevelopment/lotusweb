@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import CmsLink from '@/components/common/CmsLink'
 import MissingContent from '@/components/common/MissingContent'
 import SanityImage from '@/components/common/SanityImage'
-import { useTestDrive } from '@/components/testdrive/TestDriveProvider'
 import { useLocale } from '@/i18n/LocaleProvider'
+import { cn } from '@/lib/utils'
 import type { Figure, RangeSectionData } from '@/sanity/types'
 import FlipNumber from './FlipNumber'
 import '@/styles/model-showcase.css'
@@ -13,28 +13,23 @@ export interface ModelCardData {
   name: string
   logo?: string
   image?: Figure | null
+  intro: string
+  powertrain: string
+  price: string
+  specs: { key: string; value: string; secondary: string; label: string; ref: string }[]
   href: string
-  specs: { value: string; label: string }[]
-  /** Preselects the model in the test-drive form. */
-  slug?: string
-  discoverLabel: string
-  testDriveLabel: string
-}
-
-/**
- * An anchor-only href ('#range') is legacy seed data, not a deliberate
- * override — treat only a path or absolute URL as one.
- */
-function isRealOverride(href?: string | null): boolean {
-  if (!href) return false
-  return !href.startsWith('#')
+  ctaLabel: string
 }
 
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-function ModelCard({ card }: { card: ModelCardData }) {
-  const testDrive = useTestDrive()
+/**
+ * <bdi> on CMS text: an untranslated English label ("0-100 km/h") keeps its
+ * reading order on the Arabic page instead of flipping to "km/h 0-100".
+ */
+function ModelCard({ card, pairHasSecondary }: { card: ModelCardData; pairHasSecondary: boolean }) {
+  const hasSecondary = card.specs.some((s) => s.secondary)
   const ref = useRef<HTMLElement>(null)
   // Reduced motion starts on the final values, so there is nothing to roll.
   const [rolled, setRolled] = useState(prefersReducedMotion)
@@ -66,18 +61,59 @@ function ModelCard({ card }: { card: ModelCardData }) {
         className="model-card__img"
       />
       <div className="model-card__content">
-        <h3 className="model-card__name font-display uppercase">
-          {card.logo ? <img src={card.logo} alt={card.name} loading="lazy" /> : card.name}
-        </h3>
+        <div className="text-center">
+          <h3 className="model-card__name font-display uppercase">
+            {card.logo ? <img src={card.logo} alt={card.name} loading="lazy" /> : card.name}
+          </h3>
+          {card.intro ? (
+            <p className="model-card__label">
+              <bdi>{card.intro}</bdi>
+            </p>
+          ) : null}
+          {card.powertrain ? (
+            <p className="model-card__label">
+              <bdi>{card.powertrain}</bdi>
+            </p>
+          ) : null}
+        </div>
         <div>
+          {card.price ? (
+            <p className="model-card__label mb-4">
+              <bdi>{card.price}</bdi>
+            </p>
+          ) : null}
           {card.specs.length > 0 ? (
             <div className="model-card__specs">
-              {card.specs.map((spec, i) => (
-                <div key={i} className="min-w-0 flex-1">
+              {card.specs.map((spec) => (
+                <div key={spec.key} className="min-w-0 flex-1">
                   <div className="model-card__value">
                     <FlipNumber value={spec.value} rolled={rolled} />
+                    {spec.ref ? (
+                      <sup className="ms-0.5 text-[10px]">
+                        <a href={`#disclaimer-${spec.ref}`}>{spec.ref}</a>
+                      </sup>
+                    ) : null}
                   </div>
-                  <div className="model-card__label">{spec.label}</div>
+                  {/* A blank secondary line keeps the labels level with a
+                      cell that has one: in this card always, and beside the
+                      partner card on desktop. */}
+                  {spec.secondary ? (
+                    <div className="model-card__label">
+                      <bdi>{spec.secondary}</bdi>
+                    </div>
+                  ) : hasSecondary || pairHasSecondary ? (
+                    <div
+                      aria-hidden="true"
+                      className={cn('model-card__label', !hasSecondary && 'model-card__label--pair')}
+                    >
+                      {'\u00a0'}
+                    </div>
+                  ) : null}
+                  {spec.label ? (
+                    <div className="model-card__label">
+                      <bdi>{spec.label}</bdi>
+                    </div>
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -87,15 +123,8 @@ function ModelCard({ card }: { card: ModelCardData }) {
               link={{ href: card.href }}
               className="btn-primary px-6 py-3 text-center text-xs font-bold tracking-widest uppercase"
             >
-              {card.discoverLabel}
+              {card.ctaLabel}
             </CmsLink>
-            <button
-              type="button"
-              onClick={() => testDrive.open(card.slug)}
-              className="btn-outline px-6 py-3 text-xs font-bold tracking-widest uppercase"
-            >
-              {card.testDriveLabel}
-            </button>
           </div>
         </div>
       </div>
@@ -107,31 +136,42 @@ export default function ModelShowcase({ data }: { data?: RangeSectionData | null
   const { t } = useLocale()
   if (!data) return null
 
-  const vehicles = (data.vehicles ?? []).filter(Boolean)
+  const cards: ModelCardData[] = (data.cards ?? [])
+    .filter((c) => c.visible !== false && c.vehicle)
+    .map((c) => {
+      const v = c.vehicle!
+      const price = c.startingPrice
+      return {
+        id: c._key,
+        name: t(c.displayName) || t(v.name),
+        logo: v.logo ?? undefined,
+        image: c.image?.asset ? c.image : v.image,
+        intro: t(c.introLine),
+        powertrain: t(c.powertrainLabel),
+        price:
+          price?.amount != null
+            ? [t(price.prefix), price.currency, price.amount.toLocaleString('en-US')].filter(Boolean).join(' ')
+            : '',
+        // The unit goes through FlipNumber with the number, as the old
+        // "905 HP" values did; only the digits roll.
+        specs: (c.specs ?? [])
+          .filter((s) => s.value?.trim())
+          .map((s, i) => ({
+            key: s._key ?? String(i),
+            value: [s.value, t(s.unit)].filter(Boolean).join(' '),
+            secondary: t(s.secondaryUnit),
+            label: t(s.label),
+            ref: s.disclaimerRef?.trim() ?? '',
+          })),
+        href: c.cta?.href || (v.slug ? `/vehicles/${v.slug}` : ''),
+        ctaLabel: t(c.cta?.label, 'Explore'),
+      }
+    })
 
   // A heading with no cards under it reads as a broken page. Say why instead.
-  if (vehicles.length === 0) {
+  if (cards.length === 0) {
     return <MissingContent section={t(data.heading) || 'Our Models'} documentType="vehicle" />
   }
-
-  const cards: ModelCardData[] = vehicles.map((v) => ({
-    id: v._id,
-    name: t(v.name),
-    logo: v.logo ?? undefined,
-    image: v.image,
-    // Discover goes to the detail page unless the editor set a real path or URL.
-    href:
-      v.slug && !isRealOverride(v.discoverLink?.href)
-        ? `/vehicles/${v.slug}`
-        : (v.discoverLink?.href ?? ''),
-    specs: (v.specs ?? [])
-      .map((s) => ({ value: t(s.value), label: t(s.label) }))
-      .filter((s) => s.value)
-      .slice(0, 3),
-    slug: v.slug ?? undefined,
-    discoverLabel: t(v.discoverLink?.label, 'Discover'),
-    testDriveLabel: t(v.testDriveLink?.label, 'Test Drive'),
-  }))
 
   const rows: ModelCardData[][] = []
   for (let i = 0; i < cards.length; i += 2) rows.push(cards.slice(i, i + 2))
@@ -149,7 +189,11 @@ export default function ModelShowcase({ data }: { data?: RangeSectionData | null
           {rows.map((row) => (
             <div key={row[0].id} className="model-row">
               {row.map((card) => (
-                <ModelCard key={card.id} card={card} />
+                <ModelCard
+                  key={card.id}
+                  card={card}
+                  pairHasSecondary={row.some((c) => c.specs.some((s) => s.secondary))}
+                />
               ))}
             </div>
           ))}

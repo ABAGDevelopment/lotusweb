@@ -62,6 +62,8 @@ export interface NavigationDoc {
   } | null
   links?: (Link & { _key: string })[] | null
   cta?: Link | null
+  /** Floating button in the bottom corner of every page. */
+  updatesButton?: Link | null
   languageToggle?: {
     enLabel?: string | null
     arLabel?: string | null
@@ -230,10 +232,40 @@ export interface MarqueeSectionData {
   items?: (LocaleString & { _key: string })[] | null
 }
 
+export interface ModelCardSpec {
+  _key?: string
+  /** The number as written ("1,200", "2.78"); its digits roll up. */
+  value?: string | null
+  unit?: LocaleString | null
+  secondaryUnit?: LocaleString | null
+  label?: LocaleString | null
+  disclaimerRef?: string | null
+}
+
+/** A homepage "Our Models" card. Empty overrides fall back to the vehicle. */
+export interface ModelCard {
+  _key: string
+  visible?: boolean | null
+  vehicle?: Pick<Vehicle, '_id' | 'slug' | 'name' | 'logo' | 'image'> | null
+  image?: Figure | null
+  displayName?: LocaleString | null
+  powertrainLabel?: LocaleString | null
+  introLine?: LocaleString | null
+  startingPrice?: {
+    prefix?: LocaleString | null
+    currency?: string | null
+    amount?: number | null
+  } | null
+  specs?: ModelCardSpec[] | null
+  cta?: Link | null
+}
+
 export interface RangeSectionData {
   heading?: LocaleString | null
   subheading?: LocaleText | null
   viewAll?: Link | null
+  cards?: ModelCard[] | null
+  /** The models in the site menu. */
   vehicles?: Vehicle[] | null
 }
 
@@ -289,6 +321,7 @@ export interface ShowroomSectionData {
   heading?: LocaleString | null
   description?: LocaleText | null
   image?: Figure | null
+  cta?: Link | null
   showroom?: Showroom | null
 }
 

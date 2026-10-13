@@ -6,7 +6,7 @@ import Footer from '@/components/layout/Footer'
 import HeroSection from '@/components/Index/HeroSection'
 import MarqueeSection from '@/components/Index/MarqueeSection'
 import ModelShowcase from '@/components/Index/ModelShowcase'
-import Navigation from '@/components/layout/Navigation'
+import Navbar from '@/components/Navbar'
 import OffersCarouselSection from '@/components/Index/OffersCarouselSection'
 import OurStorySection from '@/components/Index/OurStorySection'
 import ServiceFeaturesSection from '@/components/Index/ServiceFeaturesSection'
@@ -28,7 +28,7 @@ const Index = () => {
   return (
     <div className="antialiased selection:bg-lotus-yellow selection:text-lotus-black">
       <SiteHead />
-      <Navigation />
+      <Navbar />
       <main>
         <HeroSection data={home.hero} />
         <MarqueeSection data={home.marquee} />

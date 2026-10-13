@@ -77,6 +77,7 @@ export const SITE_QUERY = /* groq */ `{
     statusBadge{ enabled, label },
     links[]{ _key, label, href, external },
     cta ${LINK},
+    updatesButton ${LINK},
     languageToggle{ enLabel, arLabel }
   },
 
@@ -108,6 +109,18 @@ export const SITE_QUERY = /* groq */ `{
       heading,
       subheading,
       viewAll ${LINK},
+      cards[]{
+        _key,
+        visible,
+        "vehicle": vehicle->{ _id, "slug": slug.current, name, "logo": logo.asset->url, image ${FIGURE} },
+        image ${FIGURE},
+        displayName,
+        powertrainLabel,
+        introLine,
+        startingPrice{ prefix, currency, amount },
+        specs[]{ _key, value, unit, secondaryUnit, label, disclaimerRef },
+        cta ${LINK}
+      },
       "vehicles": vehicles[defined(@->_id)]-> ${VEHICLE}
     },
 
@@ -152,6 +165,7 @@ export const SITE_QUERY = /* groq */ `{
       heading,
       description,
       image ${FIGURE},
+      cta ${LINK},
       "showroom": showroom-> ${SHOWROOM}
     },
 

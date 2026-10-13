@@ -1,9 +1,13 @@
+import CmsLink from '@/components/common/CmsLink'
 import SanityImage from '@/components/common/SanityImage'
 import { useLocale } from '@/i18n/LocaleProvider'
-import { cn } from '@/lib/utils'
 import type { ShowroomSectionData } from '@/sanity/types'
-import MissingContent from '@/components/common/MissingContent'
 
+/**
+ * Figma "Section - FIND A LOTUS CENTRE". From 1024px the photo fills the
+ * left two-thirds and the copy sits in a black panel (1440×600 at desktop);
+ * below that the photo fills the section and the copy is centred over it.
+ */
 export default function DriverExperienceSection({
   data,
 }: {
@@ -12,99 +16,56 @@ export default function DriverExperienceSection({
   const { t } = useLocale()
   if (!data) return null
 
+  // Until editors set a button, it opens the showroom's directions.
   const showroom = data.showroom
-
-  if (!showroom) {
-    return <MissingContent section={t(data.heading) || 'Showroom'} documentType="showroom" />
-  }
-  const isOpen = showroom?.isOpen !== false
+  const cta =
+    data.cta ??
+    (showroom?.directionsHref
+      ? { href: showroom.directionsHref, label: showroom.directionsLinkText, external: true }
+      : null)
 
   return (
-    <section className="py-20 md:py-24 px-5 md:px-8 lg:px-20" id="showroom">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <div className="relative aspect-video overflow-hidden rounded-sm bg-lotus-grey">
-          <SanityImage
-            image={data.image}
-            fallbackAlt={t(data.heading)}
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-1000"
-          />
-        </div>
+    <section
+      id="showroom"
+      aria-labelledby="showroom-title"
+      className="relative flex h-[560px] flex-col justify-end overflow-hidden bg-black text-white lg:grid lg:h-auto lg:aspect-[1440/600] lg:grid-cols-3"
+    >
+      <div className="absolute inset-0 lg:relative lg:col-span-2">
+        <SanityImage
+          image={data.image}
+          fallbackAlt={t(data.heading)}
+          sizes="(min-width: 1024px) 67vw, 100vw"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        {/* Darker than Figma's gradient, which assumes its night photo: the
+            copy has to stay readable over any image editors choose. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black from-35% via-black/60 to-black/10 lg:hidden" />
+      </div>
 
-        <div className="space-y-8">
-          {t(data.eyebrow) ? (
-            <span className="block text-center md:inline text-lotus-yellow text-xs font-bold tracking-[0.3em] uppercase">
-              {t(data.eyebrow)}
-            </span>
-          ) : null}
-          <h2 className="font-display heading-display lg:text-7xl font-bold uppercase tracking-tighter leading-none">
-            {t(data.heading)}
-          </h2>
-          <p className="text-sm md:text-lg text-lotus-text-muted leading-relaxed max-w-xl">
+      <div className="relative px-5 pb-16 text-center md:px-8 lg:flex lg:flex-col lg:justify-center lg:px-16 lg:pb-0 lg:text-start">
+        {t(data.eyebrow) ? (
+          <p className="mb-4 text-xs tracking-[0.3em] uppercase text-lotus-yellow">
+            {t(data.eyebrow)}
+          </p>
+        ) : null}
+        {/* Wide tracking goes through the variable .font-display pins with
+            !important; Arabic must not be letter-spaced. */}
+        <h2
+          id="showroom-title"
+          className="font-display text-xl leading-7 lg:text-3xl xl:text-4xl uppercase break-words mb-4 lg:mb-5 [--lotus-display-tracking:0.18em] rtl:[--lotus-display-tracking:normal]"
+        >
+          {t(data.heading)}
+        </h2>
+        {t(data.description) ? (
+          <p className="mx-auto max-w-[512px] whitespace-pre-line text-sm leading-5 lg:mx-0 lg:text-base lg:leading-6 font-light text-lotus-text-muted mb-7 lg:mb-8">
             {t(data.description)}
           </p>
-
-          {showroom ? (
-            <>
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <div className="text-xs font-bold tracking-widest uppercase text-lotus-text-faint mb-2">
-                    {t(showroom.locationLabel)}
-                  </div>
-                  <p className="text-sm">{t(showroom.address)}</p>
-                </div>
-                <div>
-                  <div className="text-xs font-bold tracking-widest uppercase text-lotus-text-faint mb-2">
-                    {t(showroom.hoursLabel)}
-                  </div>
-                  <p className="text-sm whitespace-pre-line">{t(showroom.hours)}</p>
-                </div>
-                <div>
-                  <div className="text-xs font-bold tracking-widest uppercase text-lotus-text-faint mb-2">
-                    {t(showroom.contactLabel)}
-                  </div>
-                  <a
-                    className="text-sm hover:text-lotus-yellow transition-colors"
-                    href={showroom.contactHref || '#'}
-                  >
-                    {t(showroom.contactText)}
-                  </a>
-                </div>
-                <div>
-                  <div className="text-xs font-bold tracking-widest uppercase text-lotus-text-faint mb-2">
-                    {t(showroom.directionsLabel)}
-                  </div>
-                  <a
-                    className="text-sm hover:text-lotus-yellow transition-colors"
-                    href={showroom.directionsHref || '#'}
-                    target={showroom.directionsHref ? '_blank' : undefined}
-                    rel="noopener noreferrer"
-                  >
-                    {t(showroom.directionsLinkText)}
-                  </a>
-                </div>
-              </div>
-
-              {t(showroom.liveStatusLabel) ? (
-                <div className="pt-4">
-                  <div className="inline-block px-6 py-3 border border-lotus-border rounded-sm">
-                    <span className="text-xs font-bold tracking-widest uppercase text-lotus-text-faint">
-                      {t(showroom.liveStatusLabel)}
-                    </span>
-                    <span
-                      className={cn(
-                        'text-xs font-bold tracking-widest uppercase ms-2',
-                        isOpen ? 'text-lotus-yellow' : 'text-lotus-text-muted',
-                      )}
-                    >
-                      {'\u25CF'} {isOpen ? t(showroom.openLabel) : t(showroom.closedLabel)}
-                    </span>
-                  </div>
-                </div>
-              ) : null}
-            </>
-          ) : null}
-        </div>
+        ) : null}
+        <CmsLink
+          link={cta}
+          hideWhenEmpty
+          className="btn-primary block py-4 text-center text-xs font-medium tracking-[0.15em] uppercase lg:inline-block lg:self-start lg:px-8"
+        />
       </div>
     </section>
   )

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import '@/styles/lotus-uae-for-the-drivers.css'
-import Navigation from '@/components/layout/Navigation'
+import Navbar from '@/components/Navbar'
 import Footer from '@/components/layout/Footer'
 import SanityImage from '@/components/common/SanityImage'
 import ZoomImage from '@/components/common/ZoomImage'
@@ -47,7 +47,7 @@ export default function VehicleDetail() {
 
   return (
     <div className="antialiased selection:bg-lotus-yellow selection:text-lotus-black">
-      <Navigation />
+      <Navbar />
 
       <main>
         {/* Hero */}

@@ -9,12 +9,15 @@ const DIGITS = [...'0123456789']
  * Each run of digits ("2.95", "0-100") is its own LTR isolate. The digit
  * windows are inline-blocks, which the bidi algorithm treats as neutral, so
  * on the Arabic page they would otherwise lay out right-to-left: 905 → 509.
+ *
+ * dir="auto" takes the direction from the first letter: "918 حصان" stays
+ * right-to-left, while an untranslated unit ("15 min") reads left-to-right.
  */
 export default function FlipNumber({ value, rolled }: { value: string; rolled: boolean }) {
   let digit = 0
 
   return (
-    <span className="flip-number" aria-label={value}>
+    <span className="flip-number" dir="auto" aria-label={value}>
       {/* aria-label on a plain span is ignored by most screen readers. */}
       <span className="sr-only">{value}</span>
       <span aria-hidden="true">
