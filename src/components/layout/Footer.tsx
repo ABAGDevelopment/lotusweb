@@ -16,16 +16,16 @@ export default function Footer() {
   const toggleTarget = locale === 'ar' ? 'en' : 'ar'
 
   return (
-    <footer className="bg-lotus-black border-t border-lotus-border pt-24 pb-12 px-8 lg:px-20">
+    <footer className="bg-lotus-black border-t border-lotus-border pt-16 pb-8 md:pt-24 md:pb-12 px-5 md:px-8 lg:px-20">
       {footer?.wordmark ? (
-        <div className="mb-24">
-          <div className="font-display text-[12vw] font-bold uppercase tracking-[-0.04em] leading-none text-center text-lotus-text-off opacity-90">
+        <div className="mb-10 md:mb-24">
+          <div className="font-display text-lg md:text-[12vw] font-bold uppercase tracking-[-0.04em] leading-none text-start md:text-center [--lotus-display-tracking:0.22em] md:[--lotus-display-tracking:inherit] text-lotus-text-off opacity-90">
             {footer.wordmark}
           </div>
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-12 md:mb-20">
         {columns.map((column) => (
           <div key={column._key} className="space-y-6">
             <h4 className="text-xs font-bold tracking-widest uppercase text-lotus-text-faint">
@@ -82,9 +82,9 @@ export default function Footer() {
         ) : null}
       </div>
 
-      <div className="border-t border-lotus-border pt-12 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-lotus-text-faint tracking-widest uppercase">
+      <div className="border-t border-lotus-border pt-8 md:pt-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 text-xs text-lotus-text-faint tracking-widest uppercase">
         <p>{t(footer?.copyright)}</p>
-        <div className="flex gap-8">
+        <div className="flex flex-wrap gap-x-5 gap-y-3 md:gap-8">
           {(footer?.legalLinks ?? []).map((link) => (
             <CmsLink
               key={link._key}

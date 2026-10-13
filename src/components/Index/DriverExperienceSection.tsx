@@ -20,7 +20,7 @@ export default function DriverExperienceSection({
   const isOpen = showroom?.isOpen !== false
 
   return (
-    <section className="py-24 px-8 lg:px-20" id="showroom">
+    <section className="py-20 md:py-24 px-5 md:px-8 lg:px-20" id="showroom">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className="relative aspect-video overflow-hidden rounded-sm bg-lotus-grey">
           <SanityImage
@@ -33,14 +33,14 @@ export default function DriverExperienceSection({
 
         <div className="space-y-8">
           {t(data.eyebrow) ? (
-            <span className="text-lotus-yellow text-xs font-bold tracking-[0.3em] uppercase">
+            <span className="block text-center md:inline text-lotus-yellow text-xs font-bold tracking-[0.3em] uppercase">
               {t(data.eyebrow)}
             </span>
           ) : null}
-          <h2 className="font-display text-6xl lg:text-7xl font-bold uppercase tracking-tighter leading-none">
+          <h2 className="font-display heading-display lg:text-7xl font-bold uppercase tracking-tighter leading-none">
             {t(data.heading)}
           </h2>
-          <p className="text-lg text-lotus-text-muted leading-relaxed max-w-xl">
+          <p className="text-sm md:text-lg text-lotus-text-muted leading-relaxed max-w-xl">
             {t(data.description)}
           </p>
 

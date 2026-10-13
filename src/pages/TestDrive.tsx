@@ -26,7 +26,7 @@ export default function TestDrive() {
   return (
     <div className="antialiased selection:bg-lotus-yellow selection:text-lotus-black">
       <Navigation />
-      <main className="pt-32 pb-24 px-8 lg:px-20">
+      <main className="pt-32 pb-24 px-5 md:px-8 lg:px-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           <div className="space-y-6">
             {t(data?.eyebrow) ? (

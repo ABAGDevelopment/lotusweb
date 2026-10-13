@@ -31,7 +31,7 @@ export default function ThankYou() {
   return (
     <div className="antialiased selection:bg-lotus-yellow selection:text-lotus-black">
       <Navigation />
-      <main className="relative min-h-[70vh] flex items-center pt-32 pb-24 px-8 lg:px-20 overflow-hidden">
+      <main className="relative min-h-[70vh] flex items-center pt-32 pb-24 px-5 md:px-8 lg:px-20 overflow-hidden">
         {thanks?.image ? (
           <div className="absolute inset-0 z-0">
             <SanityImage

@@ -9,7 +9,7 @@ export default function ContactCtaSection({ data }: { data?: ContactCtaData | nu
 
   return (
     <section
-      className="py-32 px-8 lg:px-20 relative overflow-hidden group cursor-pointer"
+      className="py-20 md:py-32 px-5 md:px-8 lg:px-20 relative overflow-hidden group cursor-pointer"
       id="contact"
     >
       <div className="absolute inset-0 z-0">
@@ -22,16 +22,16 @@ export default function ContactCtaSection({ data }: { data?: ContactCtaData | nu
       </div>
 
       <div className="relative z-10 text-center space-y-8">
-        <h2 className="font-display text-6xl lg:text-9xl font-bold uppercase tracking-tighter transition-colors duration-700">
+        <h2 className="font-display heading-display lg:text-9xl font-bold uppercase tracking-tighter transition-colors duration-700">
           {t(data.heading)}
         </h2>
-        <p className="text-xl text-lotus-text-muted max-w-2xl mx-auto group-hover:text-lotus-black transition-colors duration-700">
+        <p className="text-sm md:text-xl text-lotus-text-muted max-w-2xl mx-auto group-hover:text-lotus-black transition-colors duration-700">
           {t(data.subheading)}
         </p>
         {data.cta ? (
           <CmsLink
             link={data.cta}
-            className="btn-outline inline-block px-16 py-6 text-lg font-bold tracking-widest uppercase bg-transparent group-hover:bg-lotus-black group-hover:text-lotus-yellow group-hover:border-lotus-black transition-all duration-700"
+            className="btn-outline block w-full px-6 py-4 text-xs md:inline-block md:w-auto md:px-16 md:py-6 md:text-lg font-bold tracking-widest uppercase bg-transparent group-hover:bg-lotus-black group-hover:text-lotus-yellow group-hover:border-lotus-black transition-all duration-700"
           />
         ) : null}
 

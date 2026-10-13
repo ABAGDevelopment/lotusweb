@@ -33,6 +33,9 @@ const UI = {
     back: 'Back',
     next: 'Next',
     yourDetails: 'Your details',
+    slide: 'Slide',
+    playVideo: 'Play background video',
+    pauseVideo: 'Pause background video',
   },
   ar: {
     previousOffers: 'العروض السابقة',
@@ -57,6 +60,9 @@ const UI = {
     back: 'رجوع',
     next: 'التالي',
     yourDetails: 'بياناتك',
+    slide: 'الشريحة',
+    playVideo: 'تشغيل فيديو الخلفية',
+    pauseVideo: 'إيقاف فيديو الخلفية مؤقتًا',
   },
 } as const
 

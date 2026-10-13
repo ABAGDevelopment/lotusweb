@@ -146,6 +146,8 @@ export interface Vehicle {
   slug?: string | null
   name?: LocaleString | null
   tagline?: LocaleString | null
+  /** URL of the wordmark image (SVG/PNG). */
+  logo?: string | null
   image?: Figure | null
   specs?: VehicleSpec[] | null
   discoverLink?: Link | null
@@ -208,6 +210,18 @@ export interface HeroSectionData {
   image?: Figure | null
   primaryCta?: Link | null
   secondaryCta?: Link | null
+  slides?: HeroSlideData[] | null
+}
+
+export interface HeroSlideData {
+  _key?: string
+  headingTop?: LocaleString | null
+  headingOutlined?: LocaleString | null
+  subheading?: LocaleText | null
+  image?: Figure | null
+  primaryCta?: Link | null
+  secondaryCta?: Link | null
+  textLink?: Link | null
 }
 
 export interface MarqueeSectionData {
@@ -240,10 +254,17 @@ export interface BrandHighlightData {
   secondaryCta?: Link | null
 }
 
+export interface VideoFile {
+  asset?: { url: string; mimeType?: string | null; size?: number | null } | null
+}
+
 export interface StorySectionData {
   eyebrow?: LocaleString | null
   heading?: LocaleString | null
   image?: Figure | null
+  backgroundVideo?: VideoFile | null
+  backgroundVideoMobile?: VideoFile | null
+  videoPoster?: Figure | null
   leadParagraph?: LocaleText | null
   body?: LocaleText | null
   link?: Link | null

@@ -5,12 +5,11 @@ import DriverExperienceSection from '@/components/Index/DriverExperienceSection'
 import Footer from '@/components/layout/Footer'
 import HeroSection from '@/components/Index/HeroSection'
 import MarqueeSection from '@/components/Index/MarqueeSection'
+import ModelShowcase from '@/components/Index/ModelShowcase'
 import Navigation from '@/components/layout/Navigation'
 import OffersCarouselSection from '@/components/Index/OffersCarouselSection'
 import OurStorySection from '@/components/Index/OurStorySection'
 import ServiceFeaturesSection from '@/components/Index/ServiceFeaturesSection'
-import StickyActionBar from '@/components/Index/StickyActionBar'
-import VehicleRangeGrid from '@/components/Index/VehicleRangeGrid'
 import SiteHead from '@/components/common/SiteHead'
 import SetupNotice from '@/components/common/SetupNotice'
 import PageSkeleton from '@/components/common/PageSkeleton'
@@ -30,11 +29,10 @@ const Index = () => {
     <div className="antialiased selection:bg-lotus-yellow selection:text-lotus-black">
       <SiteHead />
       <Navigation />
-      <StickyActionBar data={home.stickyBar} />
       <main>
         <HeroSection data={home.hero} />
         <MarqueeSection data={home.marquee} />
-        <VehicleRangeGrid data={home.rangeSection} />
+        <ModelShowcase data={home.rangeSection} />
         <BrandHighlightSection data={home.brandHighlight} />
         <OurStorySection data={home.story} />
         <OffersCarouselSection data={home.offersSection} />

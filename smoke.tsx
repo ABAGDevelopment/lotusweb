@@ -1,7 +1,11 @@
 import { renderToString } from 'react-dom/server'
-import { RouterProvider, createMemoryRouter } from 'react-router-dom'
+import { MemoryRouter, RouterProvider, createMemoryRouter } from 'react-router-dom'
 import { AppProviders } from './src/App'
 import { buildRoutes, EXPECTED_PATHS } from './src/routes'
+import HeroSection from './src/components/Index/HeroSection'
+import { LocaleProvider } from './src/i18n/LocaleProvider'
+import { TestDriveProvider } from './src/components/testdrive/TestDriveProvider'
+import type { HeroSectionData } from './src/sanity/types'
 
 /**
  * Render smoke test.
@@ -38,6 +42,37 @@ for (const path of EXPECTED_PATHS) {
     failures.push(`${path}: ${message}`)
     console.log(`  \u2717 ${path}  ${message}`)
   }
+}
+
+// Routes render with no CMS data, so the hero's two modes are checked here:
+// the single legacy hero until editors add slides, then the slides alone.
+const renderHero = (data: HeroSectionData) =>
+  renderToString(
+    <MemoryRouter>
+      <LocaleProvider locale="en">
+        <TestDriveProvider>
+          <HeroSection data={data} />
+        </TestDriveProvider>
+      </LocaleProvider>
+    </MemoryRouter>,
+  )
+const legacyHero = renderHero({ headingTop: { en: 'Legacy' }, eyebrow: { en: 'Old sub-line' } })
+const slidHero = renderHero({
+  headingTop: { en: 'Legacy' },
+  slides: [
+    { _key: 'a', headingTop: { en: 'First slide' } },
+    { _key: 'b', headingTop: { en: 'Second slide' }, textLink: { label: { en: 'View offer' }, href: '#offers' } },
+  ],
+})
+if (!legacyHero.includes('Old sub-line') || legacyHero.includes('aria-label="Slide')) {
+  failures.push('hero: legacy fallback broken')
+} else if (
+  slidHero.includes('Legacy') ||
+  !['First slide', 'Second slide', 'View offer', 'aria-label="Slide 2"'].every((s) => slidHero.includes(s))
+) {
+  failures.push('hero: slides not rendered')
+} else {
+  console.log('  ✓ hero fallback + slides')
 }
 
 console.error = realError

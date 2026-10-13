@@ -48,13 +48,13 @@ export default function Navigation() {
       <header
         id="header"
         className={cn(
-          'fixed top-0 z-[100] w-full px-8 py-6 flex items-center justify-between transition-colors duration-500',
+          'fixed top-0 z-[100] w-full px-5 py-5 grid grid-cols-[1fr_auto_1fr] items-center md:flex md:justify-between md:px-8 md:py-6 transition-colors duration-500',
           scrolled
             ? 'bg-lotus-black/90 backdrop-blur-md border-b border-lotus-border'
             : 'bg-transparent',
         )}
       >
-        <div className="flex items-center gap-12">
+        <div className="col-start-2 row-start-1 flex items-center gap-12">
           <Link
             to={pathFor(locale)}
             aria-label={nav?.logoText || 'Lotus'}
@@ -82,11 +82,11 @@ export default function Navigation() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-6">
+        <div className="contents md:flex md:items-center md:gap-6">
           <button
             type="button"
             onClick={switchLanguage}
-            className="text-xs font-bold tracking-widest hover:text-lotus-yellow transition-colors"
+            className="col-start-1 row-start-1 justify-self-start text-lotus-yellow md:text-current text-xs font-bold tracking-widest hover:text-lotus-yellow transition-colors"
             aria-label={ui(locale, toggleTarget === 'ar' ? 'switchToArabic' : 'switchToEnglish')}
           >
             {toggleLabel}
@@ -94,12 +94,12 @@ export default function Navigation() {
           {nav?.cta ? (
             <CmsLink
               link={nav.cta}
-              className="btn-primary hidden sm:inline-block px-6 py-3 text-xs font-bold tracking-widest uppercase"
+              className="btn-primary hidden md:inline-block px-6 py-3 text-xs font-bold tracking-widest uppercase"
             />
           ) : null}
           <button
             type="button"
-            className="md:hidden text-2xl"
+            className="col-start-3 row-start-1 justify-self-end md:hidden text-2xl"
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
             aria-label={ui(locale, 'toggleMenu')}
@@ -116,7 +116,7 @@ export default function Navigation() {
           menuOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       >
-        <nav className="flex h-full flex-col items-start justify-center gap-8 px-10">
+        <nav className="flex h-full flex-col items-start justify-center gap-8 px-5">
           {links.map((link) => (
             <CmsLink
               key={link._key}

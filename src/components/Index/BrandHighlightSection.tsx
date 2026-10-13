@@ -3,6 +3,15 @@ import SanityImage from '@/components/common/SanityImage'
 import { useLocale } from '@/i18n/LocaleProvider'
 import type { BrandHighlightData } from '@/sanity/types'
 
+/** Figma's outlined "Explore" button, same as the hero's secondary CTA. */
+const OUTLINE_CTA =
+  'border border-white px-8 py-4 text-center text-xs font-medium tracking-[0.15em] uppercase text-white transition-colors hover:border-lotus-yellow hover:text-lotus-yellow'
+
+/**
+ * Full-bleed model highlight (Figma "Section - EVIJA", 1440×700). From 1024px
+ * the photo fills the section at Figma's proportions and the copy sits
+ * bottom-start over a gradient; below that the photo stacks above the copy.
+ */
 export default function BrandHighlightSection({
   data,
 }: {
@@ -12,62 +21,60 @@ export default function BrandHighlightSection({
   if (!data) return null
 
   return (
-    <section className="py-24 px-8 lg:px-20 border-t border-lotus-border" id="highlight">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <div className="relative aspect-video lg:aspect-auto lg:h-[600px] overflow-hidden rounded-sm bg-lotus-grey">
-          <SanityImage
-            image={data.image}
-            fallbackAlt={t(data.heading)}
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            className="w-full h-full object-cover"
-          />
-        </div>
+    <section
+      id="highlight"
+      aria-labelledby="highlight-title"
+      className="relative bg-black text-white lg:flex lg:items-end lg:aspect-[1440/700]"
+    >
+      <div className="relative aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
+        <SanityImage
+          image={data.image}
+          fallbackAlt={t(data.heading)}
+          sizes="100vw"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 hidden lg:block bg-gradient-to-r rtl:bg-gradient-to-l from-black via-black/40 to-transparent" />
+      </div>
 
-        <div className="space-y-8">
-          {t(data.eyebrow) ? (
-            <span className="text-lotus-yellow text-xs font-bold tracking-[0.3em] uppercase">
-              {t(data.eyebrow)}
-            </span>
-          ) : null}
-          <h2 className="font-display text-6xl lg:text-8xl font-bold uppercase tracking-tighter leading-none">
-            {t(data.heading)}
-          </h2>
-          <p className="text-lg text-lotus-text-muted leading-relaxed max-w-xl">
+      {/* Figma's column is 576px; 640 keeps "LOTUS EVIJA" on one line in the
+          site's headline face, which runs wider than Figma's Archivo. */}
+      <div className="relative px-5 md:px-8 py-12 lg:w-full lg:max-w-[640px] lg:px-[88px] lg:pt-0 lg:pb-20">
+        {t(data.eyebrow) ? (
+          <p className="mb-4 text-xs tracking-[0.3em] uppercase text-lotus-yellow">
+            {t(data.eyebrow)}
+          </p>
+        ) : null}
+        {/* Wide tracking goes through the variable .font-display pins with
+            !important; Arabic must not be letter-spaced. */}
+        <h2
+          id="highlight-title"
+          className="font-display text-[30px] leading-[1.25] lg:text-[48px] lg:leading-[48px] uppercase break-words text-lotus-yellow mb-5 [--lotus-display-tracking:0.18em] rtl:[--lotus-display-tracking:normal]"
+        >
+          {t(data.heading)}
+        </h2>
+        {t(data.body) ? (
+          <p className="max-w-[400px] whitespace-pre-line text-sm leading-6 lg:text-base font-light mb-8">
             {t(data.body)}
           </p>
+        ) : null}
 
-          {(data.stats ?? []).length > 0 ? (
-            <div className="grid grid-cols-2 gap-8">
-              {(data.stats ?? []).map((stat) => (
-                <div key={stat._key}>
-                  <div className="font-display text-5xl font-bold tracking-tighter">
-                    {stat.value}
-                    {stat.unit ? (
-                      <span className="text-lotus-yellow text-2xl">{stat.unit}</span>
-                    ) : null}
-                  </div>
-                  <div className="text-xs font-bold tracking-widest uppercase text-lotus-text-faint mt-2">
-                    {t(stat.label)}
-                  </div>
+        {(data.stats ?? []).length > 0 ? (
+          <div className="flex flex-wrap gap-x-8 gap-y-4 mb-8">
+            {(data.stats ?? []).map((stat) => (
+              <div key={stat._key} className="min-w-0">
+                <div className="text-2xl font-light">
+                  {stat.value}
+                  {stat.unit ? <span className="text-lotus-yellow text-base">{stat.unit}</span> : null}
                 </div>
-              ))}
-            </div>
-          ) : null}
-
-          <div className="flex gap-4 pt-4">
-            {data.primaryCta ? (
-              <CmsLink
-                link={data.primaryCta}
-                className="btn-primary px-10 py-4 text-sm font-bold tracking-widest uppercase"
-              />
-            ) : null}
-            {data.secondaryCta ? (
-              <CmsLink
-                link={data.secondaryCta}
-                className="btn-outline px-10 py-4 text-sm font-bold tracking-widest uppercase"
-              />
-            ) : null}
+                <div className="mt-1 text-xs uppercase text-white/70">{t(stat.label)}</div>
+              </div>
+            ))}
           </div>
+        ) : null}
+
+        <div className="flex flex-col gap-3 lg:flex-row lg:gap-4">
+          <CmsLink link={data.primaryCta} className={OUTLINE_CTA} />
+          <CmsLink link={data.secondaryCta} className={OUTLINE_CTA} />
         </div>
       </div>
     </section>

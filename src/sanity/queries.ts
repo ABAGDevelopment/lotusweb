@@ -26,6 +26,7 @@ const VEHICLE = /* groq */ `{
   "slug": slug.current,
   name,
   tagline,
+  "logo": logo.asset->url,
   image ${FIGURE},
   specs[]{ _key, value, label },
   discoverLink ${LINK},
@@ -88,7 +89,17 @@ export const SITE_QUERY = /* groq */ `{
       headingOutlined,
       image ${FIGURE},
       primaryCta ${LINK},
-      secondaryCta ${LINK}
+      secondaryCta ${LINK},
+      slides[]{
+        _key,
+        headingTop,
+        headingOutlined,
+        subheading,
+        image ${FIGURE},
+        primaryCta ${LINK},
+        secondaryCta ${LINK},
+        textLink ${LINK}
+      }
     },
 
     marquee{ enabled, speedSeconds, items[]{ _key, en, ar } },
@@ -114,6 +125,9 @@ export const SITE_QUERY = /* groq */ `{
       eyebrow,
       heading,
       image ${FIGURE},
+      backgroundVideo{ asset->{ url, mimeType, size } },
+      backgroundVideoMobile{ asset->{ url, mimeType } },
+      videoPoster ${FIGURE},
       leadParagraph,
       body,
       link ${LINK},

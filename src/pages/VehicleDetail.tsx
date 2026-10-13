@@ -69,7 +69,7 @@ export default function VehicleDetail() {
               className="w-full h-full object-cover"
             />
           </div>
-          <div className="container mx-auto px-8 lg:px-20 relative z-20 pb-16">
+          <div className="container mx-auto px-5 md:px-8 lg:px-20 relative z-20 pb-16">
             <Link
               to={localePath('/#range')}
               className="text-xs font-bold tracking-widest uppercase text-lotus-text-muted hover:text-lotus-yellow transition-colors"
@@ -93,7 +93,7 @@ export default function VehicleDetail() {
         </section>
 
         {/* Overview + headline specs */}
-        <section className="px-8 lg:px-20 py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 border-b border-lotus-border">
+        <section className="px-5 md:px-8 lg:px-20 py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 border-b border-lotus-border">
           <div className="lg:col-span-7">
             <p className="text-xl font-light leading-relaxed">{t(data.overview)}</p>
           </div>
@@ -115,8 +115,8 @@ export default function VehicleDetail() {
 
         {/* 360 */}
         {showSpin ? (
-          <section className="px-8 lg:px-20 py-20 border-b border-lotus-border">
-            <h2 className="font-display text-4xl lg:text-6xl font-bold uppercase tracking-tighter mb-10">
+          <section className="px-5 md:px-8 lg:px-20 py-20 border-b border-lotus-border">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-6xl font-bold uppercase tracking-tighter mb-10">
               {ui(locale, 'view360')}
             </h2>
             <Spin360 frames={frames} label={`${t(data.name)} ${ui(locale, 'view360')}`} />
@@ -125,13 +125,13 @@ export default function VehicleDetail() {
 
         {/* Gallery with zoom */}
         {(data.gallery ?? []).length > 0 ? (
-          <section className="px-8 lg:px-20 py-20 border-b border-lotus-border">
+          <section className="px-5 md:px-8 lg:px-20 py-20 border-b border-lotus-border">
             <div className="flex flex-wrap justify-between items-end gap-6 mb-10">
-              <h2 className="font-display text-4xl lg:text-6xl font-bold uppercase tracking-tighter">
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-6xl font-bold uppercase tracking-tighter">
                 {ui(locale, 'gallery')}
               </h2>
               {categories.length > 1 ? (
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
                   {(['all', ...categories] as const).map((c) => (
                     <button
                       key={c}
@@ -175,8 +175,8 @@ export default function VehicleDetail() {
 
         {/* Full specifications */}
         {(data.specGroups ?? []).length > 0 ? (
-          <section className="px-8 lg:px-20 py-20">
-            <h2 className="font-display text-4xl lg:text-6xl font-bold uppercase tracking-tighter mb-10">
+          <section className="px-5 md:px-8 lg:px-20 py-20">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-6xl font-bold uppercase tracking-tighter mb-10">
               {ui(locale, 'specifications')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">

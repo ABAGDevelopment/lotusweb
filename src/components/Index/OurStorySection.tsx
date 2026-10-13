@@ -11,20 +11,20 @@ export default function OurStorySection({ data }: { data?: StorySectionData | nu
     t(data.quoteBefore) || t(data.quoteHighlight) || t(data.quoteAfter)
 
   return (
-    <section className="py-24 px-8 lg:px-20 bg-lotus-grey" id="story">
-      <div className="grid grid-cols-12 gap-8 items-start">
-        <div className="col-span-12 lg:col-span-4 space-y-6">
+    <section className="py-20 md:py-24 px-5 md:px-8 lg:px-20 bg-lotus-grey" id="story">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="lg:col-span-4 space-y-6">
           {t(data.eyebrow) ? (
-            <span className="text-lotus-yellow text-xs font-bold tracking-[0.3em] uppercase">
+            <span className="block text-center md:inline text-lotus-yellow text-xs font-bold tracking-[0.3em] uppercase">
               {t(data.eyebrow)}
             </span>
           ) : null}
-          <h2 className="font-display text-6xl lg:text-7xl font-bold uppercase tracking-tighter leading-none">
+          <h2 className="font-display heading-display lg:text-5xl xl:text-7xl font-bold uppercase tracking-tighter leading-none">
             {t(data.heading)}
           </h2>
         </div>
 
-        <div className="col-span-12 lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="aspect-[4/3] overflow-hidden rounded-sm group relative">
             <SanityImage
               image={data.image}
@@ -36,8 +36,8 @@ export default function OurStorySection({ data }: { data?: StorySectionData | nu
           </div>
 
           <div className="flex flex-col justify-center space-y-6">
-            <p className="text-xl font-light leading-relaxed">{t(data.leadParagraph)}</p>
-            <p className="text-lotus-text-muted leading-relaxed">{t(data.body)}</p>
+            <p className="text-sm md:text-xl font-light leading-relaxed">{t(data.leadParagraph)}</p>
+            <p className="text-sm md:text-base text-lotus-text-muted leading-relaxed">{t(data.body)}</p>
             {data.link ? (
               <CmsLink
                 link={data.link}
