@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => {
   // Server-only vars for the dev API bridge. Vite keeps .env in its own
   // object; the API module runs in Node and reads process.env, so copy them
   // across without overriding anything the real environment already set.
-  for (const key of ['SANITY_PROJECT_ID', 'SANITY_DATASET', 'SANITY_WRITE_TOKEN']) {
+  for (const key of ['SANITY_PROJECT_ID', 'SANITY_DATASET', 'SANITY_WRITE_TOKEN', 'SANITY_API_WRITE_TOKEN']) {
     if (!process.env[key] && fileEnv[key]) process.env[key] = fileEnv[key]
   }
 
