@@ -108,14 +108,21 @@ export interface VehicleDetail extends Vehicle {
 }
 
 export interface TestDriveLabels {
-  fullName?: LocaleString | null
+  country?: LocaleString | null
+  countryValue?: LocaleString | null
+  firstName?: LocaleString | null
+  firstNamePlaceholder?: LocaleString | null
+  lastName?: LocaleString | null
+  lastNamePlaceholder?: LocaleString | null
   email?: LocaleString | null
+  emailPlaceholder?: LocaleString | null
   phone?: LocaleString | null
-  model?: LocaleString | null
-  location?: LocaleString | null
-  preferredDate?: LocaleString | null
-  message?: LocaleString | null
-  consent?: LocaleString | null
+  phonePlaceholder?: LocaleString | null
+  phonePrefix?: string | null
+  /** Contains {privacy} and {terms}, replaced by the links in privacyStep. */
+  privacyConsent?: LocaleString | null
+  consentRequired?: LocaleString | null
+  marketingConsent?: LocaleString | null
   submit?: LocaleString | null
   submitting?: LocaleString | null
   required?: LocaleString | null
@@ -124,13 +131,38 @@ export interface TestDriveLabels {
   errorBody?: LocaleString | null
 }
 
+/** A car on the test-drive page. Empty name/image fall back to the vehicle. */
+export interface TestDriveModel {
+  _key: string
+  name?: LocaleString | null
+  powertrain?: LocaleString | null
+  image?: Figure | null
+  vehicle?: Pick<Vehicle, '_id' | 'slug' | 'name' | 'image'> | null
+}
+
 export interface TestDrivePage {
   eyebrow?: LocaleString | null
   heading?: LocaleString | null
   intro?: LocaleText | null
+  /** Title band background. */
   image?: Figure | null
-  modelPlaceholder?: LocaleString | null
-  locationPlaceholder?: LocaleString | null
+  modelStep?: {
+    heading?: LocaleString | null
+    intro?: LocaleString | null
+    models?: TestDriveModel[] | null
+  } | null
+  detailsStep?: { heading?: LocaleString | null } | null
+  centreStep?: { heading?: LocaleString | null; intro?: LocaleString | null } | null
+  privacyStep?: {
+    heading?: LocaleString | null
+    privacyLink?: Link | null
+    termsLink?: Link | null
+  } | null
+  nextSteps?: {
+    heading?: LocaleString | null
+    items?: { _key: string; title?: LocaleString | null; body?: LocaleText | null }[] | null
+  } | null
+  disclaimers?: LocaleText[] | null
   labels?: TestDriveLabels | null
   thankYou?: {
     eyebrow?: LocaleString | null

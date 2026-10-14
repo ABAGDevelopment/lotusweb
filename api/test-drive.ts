@@ -44,7 +44,7 @@ function getClient() {
 /** Never wait forever for a request body. */
 const BODY_READ_TIMEOUT_MS = 5_000
 
-const MAX = { name: 120, email: 200, phone: 40, model: 80, location: 120, date: 40, message: 2000 }
+const MAX = { name: 120, email: 200, phone: 40, model: 80, location: 120, date: 40, message: 2000, country: 80 }
 
 function clean(value: unknown, max: number): string {
   return typeof value === 'string' ? value.trim().slice(0, max) : ''
@@ -59,6 +59,8 @@ export interface EnquiryDoc {
   location: string
   preferredDate: string
   message: string
+  country: string
+  marketingConsent: boolean
   locale: string
   submittedAt: string
 }
@@ -80,6 +82,8 @@ export function buildEnquiry(
     location: clean(body.location, MAX.location),
     preferredDate: clean(body.preferredDate, MAX.date),
     message: clean(body.message, MAX.message),
+    country: clean(body.country, MAX.country),
+    marketingConsent: body.marketingConsent === true,
     locale: clean(body.locale, 8) || 'en',
     // Trusted server clock — never the value the client claims.
     submittedAt: now.toISOString(),

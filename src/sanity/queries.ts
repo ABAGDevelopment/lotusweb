@@ -234,26 +234,34 @@ export const VEHICLE_QUERY = /* groq */ `*[_type == "vehicle" && slug.current ==
   testDriveLink ${LINK}
 }`
 
-/** Slugs of every published vehicle — used for the "other models" strip. */
-export const VEHICLE_LINKS_QUERY = /* groq */ `*[_type == "vehicle" && defined(slug.current)]{
-  _id,
-  "slug": slug.current,
-  name,
-  image ${FIGURE}
-}`
-
-/** Copy and field labels for the test-drive form and its thank-you page. */
+/** The test-drive page, its form copy and its thank-you page. */
 export const TEST_DRIVE_QUERY = /* groq */ `*[_type == "testDrivePage"][0]{
   eyebrow,
   heading,
   intro,
   image ${FIGURE},
-  labels{
-    fullName, email, phone, model, location, preferredDate, message,
-    consent, submit, submitting, required, invalidEmail, errorTitle, errorBody
+  modelStep{
+    heading,
+    intro,
+    models[defined(vehicle->_id)]{
+      _key,
+      name,
+      powertrain,
+      image ${FIGURE},
+      "vehicle": vehicle->{ _id, "slug": slug.current, name, image ${FIGURE} }
+    }
   },
-  locationPlaceholder,
-  modelPlaceholder,
+  detailsStep{ heading },
+  centreStep{ heading, intro },
+  privacyStep{ heading, privacyLink ${LINK}, termsLink ${LINK} },
+  nextSteps{ heading, items[]{ _key, title, body } },
+  disclaimers,
+  labels{
+    country, countryValue, firstName, firstNamePlaceholder, lastName, lastNamePlaceholder,
+    email, emailPlaceholder, phone, phonePlaceholder, phonePrefix,
+    privacyConsent, consentRequired, marketingConsent,
+    submit, submitting, required, invalidEmail, errorTitle, errorBody
+  },
   thankYou{
     eyebrow,
     heading,

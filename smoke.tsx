@@ -4,7 +4,6 @@ import { AppProviders } from './src/App'
 import { buildRoutes, EXPECTED_PATHS } from './src/routes'
 import HeroSection from './src/components/Index/HeroSection'
 import { LocaleProvider } from './src/i18n/LocaleProvider'
-import { TestDriveProvider } from './src/components/testdrive/TestDriveProvider'
 import type { HeroSectionData } from './src/sanity/types'
 
 /**
@@ -50,9 +49,7 @@ const renderHero = (data: HeroSectionData) =>
   renderToString(
     <MemoryRouter>
       <LocaleProvider locale="en">
-        <TestDriveProvider>
-          <HeroSection data={data} />
-        </TestDriveProvider>
+        <HeroSection data={data} />
       </LocaleProvider>
     </MemoryRouter>,
   )

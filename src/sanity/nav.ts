@@ -60,7 +60,7 @@ export function buildNav(site: SitePayload | null): NavConfig {
           ...vehicles
             .filter((v) => parentOf(v) === model)
             .map((v) => ({ key: v.slug, link: { label: v.name, href: `/vehicles/${v.slug}` } })),
-          // /test-drive opens the existing modal with this model preselected.
+          // The test-drive page, with this model preselected.
           { key: 'test-drive', link: { label: label('bookTestDrive'), href: `/test-drive?model=${model.slug}` } },
         ],
       })),

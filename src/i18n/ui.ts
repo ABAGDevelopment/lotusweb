@@ -40,8 +40,8 @@ const UI = {
     all: 'All',
     zoomHint: 'Hover to zoom — tap on mobile',
     back: 'Back',
+    previous: 'Previous',
     next: 'Next',
-    yourDetails: 'Your details',
     slide: 'Slide',
   },
   ar: {
@@ -74,8 +74,8 @@ const UI = {
     all: 'الكل',
     zoomHint: 'مرّر المؤشر للتكبير — انقر على الجوال',
     back: 'رجوع',
+    previous: 'السابق',
     next: 'التالي',
-    yourDetails: 'بياناتك',
     slide: 'الشريحة',
   },
 } as const
