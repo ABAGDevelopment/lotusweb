@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import '@/styles/lotus-uae-for-the-drivers.css'
-import Navigation from '@/components/layout/Navigation'
+import Navbar from '@/components/Navbar'
 import Footer from '@/components/layout/Footer'
 import SanityImage from '@/components/common/SanityImage'
 import CmsLink from '@/components/common/CmsLink'
@@ -30,8 +30,8 @@ export default function ThankYou() {
 
   return (
     <div className="antialiased selection:bg-lotus-yellow selection:text-lotus-black">
-      <Navigation />
-      <main className="relative min-h-[70vh] flex items-center pt-32 pb-24 px-8 lg:px-20 overflow-hidden">
+      <Navbar />
+      <main className="relative min-h-[70vh] flex items-center pt-32 pb-24 px-5 md:px-8 lg:px-20 overflow-hidden">
         {thanks?.image ? (
           <div className="absolute inset-0 z-0">
             <SanityImage

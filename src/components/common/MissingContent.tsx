@@ -16,7 +16,7 @@ export default function MissingContent({
   if (!import.meta.env.DEV) return null
 
   return (
-    <section className="px-8 lg:px-20 py-12">
+    <section className="px-5 md:px-8 lg:px-20 py-12">
       <div className="border border-dashed border-lotus-yellow/60 bg-lotus-yellow/5 rounded-sm p-6 space-y-3">
         <p className="text-lotus-yellow text-xs font-bold tracking-[0.3em] uppercase">
           Content missing — dev only

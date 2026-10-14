@@ -1,11 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { LOCALES, useLocale } from '@/i18n/LocaleProvider'
-import {
-  isTestDriveHref,
-  modelFromHref,
-  useTestDrive,
-} from '@/components/testdrive/TestDriveProvider'
 import type { Link as CmsLinkData } from '@/sanity/types'
 
 interface CmsLinkProps {
@@ -51,7 +46,6 @@ export default function CmsLink({
   hideWhenEmpty = true,
 }: CmsLinkProps) {
   const { t, localePath } = useLocale()
-  const testDrive = useTestDrive()
   const label = t(link?.label, fallbackLabel)
   const content = children ?? label
   const href = link?.href?.trim()
@@ -63,22 +57,6 @@ export default function CmsLink({
       <span className={className} role="link" aria-disabled="true">
         {content}
       </span>
-    )
-  }
-
-  // Any CMS button pointing at /test-drive opens the modal rather than
-  // navigating. One interception point, so every existing CTA — nav, hero,
-  // sticky bar, closing section — becomes a modal trigger with no content
-  // change. The route still exists for direct links and SEO.
-  if (isTestDriveHref(href)) {
-    return (
-      <button
-        type="button"
-        className={className}
-        onClick={() => testDrive.open(modelFromHref(href))}
-      >
-        {content}
-      </button>
     )
   }
 

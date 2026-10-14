@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import '@/styles/lotus-uae-for-the-drivers.css'
-import Navigation from '@/components/layout/Navigation'
+import Navbar from '@/components/Navbar'
 import Footer from '@/components/layout/Footer'
 import SanityImage from '@/components/common/SanityImage'
 import ZoomImage from '@/components/common/ZoomImage'
@@ -9,7 +9,6 @@ import Spin360 from '@/components/common/Spin360'
 import PageSkeleton from '@/components/common/PageSkeleton'
 import NotFound from '@/pages/NotFound'
 import { useLocale } from '@/i18n/LocaleProvider'
-import { useTestDrive } from '@/components/testdrive/TestDriveProvider'
 import { ui } from '@/i18n/ui'
 import { useLiveQuery } from '@/sanity/useLiveQuery'
 import { VEHICLE_QUERY } from '@/sanity/queries'
@@ -25,7 +24,6 @@ const CATEGORY_LABEL: Record<GalleryCategory, { en: string; ar: string }> = {
 export default function VehicleDetail() {
   const { slug } = useParams<{ slug: string }>()
   const { t, locale, localePath, isRtl } = useLocale()
-  const testDrive = useTestDrive()
   const { data, loading } = useLiveQuery<VehicleDoc>(VEHICLE_QUERY, { slug: slug ?? '' })
   const [filter, setFilter] = useState<GalleryCategory | 'all'>('all')
 
@@ -47,7 +45,7 @@ export default function VehicleDetail() {
 
   return (
     <div className="antialiased selection:bg-lotus-yellow selection:text-lotus-black">
-      <Navigation />
+      <Navbar />
 
       <main>
         {/* Hero */}
@@ -69,7 +67,7 @@ export default function VehicleDetail() {
               className="w-full h-full object-cover"
             />
           </div>
-          <div className="container mx-auto px-8 lg:px-20 relative z-20 pb-16">
+          <div className="container mx-auto px-5 md:px-8 lg:px-20 relative z-20 pb-16">
             <Link
               to={localePath('/#range')}
               className="text-xs font-bold tracking-widest uppercase text-lotus-text-muted hover:text-lotus-yellow transition-colors"
@@ -81,19 +79,18 @@ export default function VehicleDetail() {
             </h1>
             <p className="text-lg text-lotus-text-muted mt-3 max-w-xl">{t(data.tagline)}</p>
             <div className="flex flex-wrap gap-4 mt-8">
-              <button
-                type="button"
-                onClick={() => testDrive.open(data.slug ?? undefined)}
+              <Link
+                to={localePath(`/test-drive${data.slug ? `?model=${data.slug}` : ''}`)}
                 className="btn-primary px-10 py-4 text-sm font-bold tracking-widest uppercase"
               >
                 {ui(locale, 'bookTestDrive')}
-              </button>
+              </Link>
             </div>
           </div>
         </section>
 
         {/* Overview + headline specs */}
-        <section className="px-8 lg:px-20 py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 border-b border-lotus-border">
+        <section className="px-5 md:px-8 lg:px-20 py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 border-b border-lotus-border">
           <div className="lg:col-span-7">
             <p className="text-xl font-light leading-relaxed">{t(data.overview)}</p>
           </div>
@@ -115,8 +112,8 @@ export default function VehicleDetail() {
 
         {/* 360 */}
         {showSpin ? (
-          <section className="px-8 lg:px-20 py-20 border-b border-lotus-border">
-            <h2 className="font-display text-4xl lg:text-6xl font-bold uppercase tracking-tighter mb-10">
+          <section className="px-5 md:px-8 lg:px-20 py-20 border-b border-lotus-border">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-6xl font-bold uppercase tracking-tighter mb-10">
               {ui(locale, 'view360')}
             </h2>
             <Spin360 frames={frames} label={`${t(data.name)} ${ui(locale, 'view360')}`} />
@@ -125,13 +122,13 @@ export default function VehicleDetail() {
 
         {/* Gallery with zoom */}
         {(data.gallery ?? []).length > 0 ? (
-          <section className="px-8 lg:px-20 py-20 border-b border-lotus-border">
+          <section className="px-5 md:px-8 lg:px-20 py-20 border-b border-lotus-border">
             <div className="flex flex-wrap justify-between items-end gap-6 mb-10">
-              <h2 className="font-display text-4xl lg:text-6xl font-bold uppercase tracking-tighter">
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-6xl font-bold uppercase tracking-tighter">
                 {ui(locale, 'gallery')}
               </h2>
               {categories.length > 1 ? (
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
                   {(['all', ...categories] as const).map((c) => (
                     <button
                       key={c}
@@ -175,8 +172,8 @@ export default function VehicleDetail() {
 
         {/* Full specifications */}
         {(data.specGroups ?? []).length > 0 ? (
-          <section className="px-8 lg:px-20 py-20">
-            <h2 className="font-display text-4xl lg:text-6xl font-bold uppercase tracking-tighter mb-10">
+          <section className="px-5 md:px-8 lg:px-20 py-20">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-6xl font-bold uppercase tracking-tighter mb-10">
               {ui(locale, 'specifications')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">

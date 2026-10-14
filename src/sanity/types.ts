@@ -62,6 +62,8 @@ export interface NavigationDoc {
   } | null
   links?: (Link & { _key: string })[] | null
   cta?: Link | null
+  /** Floating button in the bottom corner of every page. */
+  updatesButton?: Link | null
   languageToggle?: {
     enLabel?: string | null
     arLabel?: string | null
@@ -106,14 +108,21 @@ export interface VehicleDetail extends Vehicle {
 }
 
 export interface TestDriveLabels {
-  fullName?: LocaleString | null
+  country?: LocaleString | null
+  countryValue?: LocaleString | null
+  firstName?: LocaleString | null
+  firstNamePlaceholder?: LocaleString | null
+  lastName?: LocaleString | null
+  lastNamePlaceholder?: LocaleString | null
   email?: LocaleString | null
+  emailPlaceholder?: LocaleString | null
   phone?: LocaleString | null
-  model?: LocaleString | null
-  location?: LocaleString | null
-  preferredDate?: LocaleString | null
-  message?: LocaleString | null
-  consent?: LocaleString | null
+  phonePlaceholder?: LocaleString | null
+  phonePrefix?: string | null
+  /** Contains {privacy} and {terms}, replaced by the links in privacyStep. */
+  privacyConsent?: LocaleString | null
+  consentRequired?: LocaleString | null
+  marketingConsent?: LocaleString | null
   submit?: LocaleString | null
   submitting?: LocaleString | null
   required?: LocaleString | null
@@ -122,13 +131,38 @@ export interface TestDriveLabels {
   errorBody?: LocaleString | null
 }
 
+/** A car on the test-drive page. Empty name/image fall back to the vehicle. */
+export interface TestDriveModel {
+  _key: string
+  name?: LocaleString | null
+  powertrain?: LocaleString | null
+  image?: Figure | null
+  vehicle?: Pick<Vehicle, '_id' | 'slug' | 'name' | 'image'> | null
+}
+
 export interface TestDrivePage {
   eyebrow?: LocaleString | null
   heading?: LocaleString | null
   intro?: LocaleText | null
+  /** Title band background. */
   image?: Figure | null
-  modelPlaceholder?: LocaleString | null
-  locationPlaceholder?: LocaleString | null
+  modelStep?: {
+    heading?: LocaleString | null
+    intro?: LocaleString | null
+    models?: TestDriveModel[] | null
+  } | null
+  detailsStep?: { heading?: LocaleString | null } | null
+  centreStep?: { heading?: LocaleString | null; intro?: LocaleString | null } | null
+  privacyStep?: {
+    heading?: LocaleString | null
+    privacyLink?: Link | null
+    termsLink?: Link | null
+  } | null
+  nextSteps?: {
+    heading?: LocaleString | null
+    items?: { _key: string; title?: LocaleString | null; body?: LocaleText | null }[] | null
+  } | null
+  disclaimers?: LocaleText[] | null
   labels?: TestDriveLabels | null
   thankYou?: {
     eyebrow?: LocaleString | null
@@ -146,6 +180,8 @@ export interface Vehicle {
   slug?: string | null
   name?: LocaleString | null
   tagline?: LocaleString | null
+  /** URL of the wordmark image (SVG/PNG). */
+  logo?: string | null
   image?: Figure | null
   specs?: VehicleSpec[] | null
   discoverLink?: Link | null
@@ -208,6 +244,18 @@ export interface HeroSectionData {
   image?: Figure | null
   primaryCta?: Link | null
   secondaryCta?: Link | null
+  slides?: HeroSlideData[] | null
+}
+
+export interface HeroSlideData {
+  _key?: string
+  headingTop?: LocaleString | null
+  headingOutlined?: LocaleString | null
+  subheading?: LocaleText | null
+  image?: Figure | null
+  primaryCta?: Link | null
+  secondaryCta?: Link | null
+  textLink?: Link | null
 }
 
 export interface MarqueeSectionData {
@@ -216,10 +264,40 @@ export interface MarqueeSectionData {
   items?: (LocaleString & { _key: string })[] | null
 }
 
+export interface ModelCardSpec {
+  _key?: string
+  /** The number as written ("1,200", "2.78"); its digits roll up. */
+  value?: string | null
+  unit?: LocaleString | null
+  secondaryUnit?: LocaleString | null
+  label?: LocaleString | null
+  disclaimerRef?: string | null
+}
+
+/** A homepage "Our Models" card. Empty overrides fall back to the vehicle. */
+export interface ModelCard {
+  _key: string
+  visible?: boolean | null
+  vehicle?: Pick<Vehicle, '_id' | 'slug' | 'name' | 'logo' | 'image'> | null
+  image?: Figure | null
+  displayName?: LocaleString | null
+  powertrainLabel?: LocaleString | null
+  introLine?: LocaleString | null
+  startingPrice?: {
+    prefix?: LocaleString | null
+    currency?: string | null
+    amount?: number | null
+  } | null
+  specs?: ModelCardSpec[] | null
+  cta?: Link | null
+}
+
 export interface RangeSectionData {
   heading?: LocaleString | null
   subheading?: LocaleText | null
   viewAll?: Link | null
+  cards?: ModelCard[] | null
+  /** The models in the site menu. */
   vehicles?: Vehicle[] | null
 }
 
@@ -240,10 +318,17 @@ export interface BrandHighlightData {
   secondaryCta?: Link | null
 }
 
+export interface VideoFile {
+  asset?: { url: string; mimeType?: string | null; size?: number | null } | null
+}
+
 export interface StorySectionData {
   eyebrow?: LocaleString | null
   heading?: LocaleString | null
   image?: Figure | null
+  backgroundVideo?: VideoFile | null
+  backgroundVideoMobile?: VideoFile | null
+  videoPoster?: Figure | null
   leadParagraph?: LocaleText | null
   body?: LocaleText | null
   link?: Link | null
@@ -268,6 +353,7 @@ export interface ShowroomSectionData {
   heading?: LocaleString | null
   description?: LocaleText | null
   image?: Figure | null
+  cta?: Link | null
   showroom?: Showroom | null
 }
 

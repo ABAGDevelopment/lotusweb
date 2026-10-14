@@ -3,8 +3,11 @@ export interface EnquiryPayload {
   email: string
   phone: string
   model: string
+  location: string
   preferredDate: string
   message: string
+  country: string
+  marketingConsent: boolean
   locale: string
 }
 

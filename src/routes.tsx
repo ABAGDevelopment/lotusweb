@@ -6,7 +6,6 @@ import VehicleDetail from '@/pages/VehicleDetail'
 import TestDrive from '@/pages/TestDrive'
 import ThankYou from '@/pages/ThankYou'
 import { LOCALES, LocaleProvider } from '@/i18n/LocaleProvider'
-import { TestDriveProvider } from '@/components/testdrive/TestDriveProvider'
 import ScrollManager from '@/components/common/ScrollManager'
 import type { Locale } from '@/sanity/types'
 
@@ -17,19 +16,11 @@ import type { Locale } from '@/sanity/types'
  * Exported as data (not JSX) so the paths can be asserted in a test — a
  * mistyped path here is otherwise invisible until someone clicks the link.
  */
-/**
- * Locale context wraps the test-drive modal, not the other way round: the
- * modal renders CMS copy through `t()`, so it must sit inside the provider.
- * Mounting it above the router throws "useLocale must be used inside
- * <LocaleProvider>" on first paint.
- */
 function LocaleLayout({ locale, defaultLocale }: { locale: Locale; defaultLocale: Locale }) {
   return (
     <LocaleProvider locale={locale} defaultLocale={defaultLocale}>
-      <TestDriveProvider>
-        <ScrollManager />
-        <Outlet />
-      </TestDriveProvider>
+      <ScrollManager />
+      <Outlet />
     </LocaleProvider>
   )
 }

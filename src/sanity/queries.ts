@@ -26,6 +26,7 @@ const VEHICLE = /* groq */ `{
   "slug": slug.current,
   name,
   tagline,
+  "logo": logo.asset->url,
   image ${FIGURE},
   specs[]{ _key, value, label },
   discoverLink ${LINK},
@@ -76,6 +77,7 @@ export const SITE_QUERY = /* groq */ `{
     statusBadge{ enabled, label },
     links[]{ _key, label, href, external },
     cta ${LINK},
+    updatesButton ${LINK},
     languageToggle{ enLabel, arLabel }
   },
 
@@ -88,7 +90,17 @@ export const SITE_QUERY = /* groq */ `{
       headingOutlined,
       image ${FIGURE},
       primaryCta ${LINK},
-      secondaryCta ${LINK}
+      secondaryCta ${LINK},
+      slides[]{
+        _key,
+        headingTop,
+        headingOutlined,
+        subheading,
+        image ${FIGURE},
+        primaryCta ${LINK},
+        secondaryCta ${LINK},
+        textLink ${LINK}
+      }
     },
 
     marquee{ enabled, speedSeconds, items[]{ _key, en, ar } },
@@ -97,6 +109,18 @@ export const SITE_QUERY = /* groq */ `{
       heading,
       subheading,
       viewAll ${LINK},
+      cards[]{
+        _key,
+        visible,
+        "vehicle": vehicle->{ _id, "slug": slug.current, name, "logo": logo.asset->url, image ${FIGURE} },
+        image ${FIGURE},
+        displayName,
+        powertrainLabel,
+        introLine,
+        startingPrice{ prefix, currency, amount },
+        specs[]{ _key, value, unit, secondaryUnit, label, disclaimerRef },
+        cta ${LINK}
+      },
       "vehicles": vehicles[defined(@->_id)]-> ${VEHICLE}
     },
 
@@ -114,6 +138,9 @@ export const SITE_QUERY = /* groq */ `{
       eyebrow,
       heading,
       image ${FIGURE},
+      backgroundVideo{ asset->{ url, mimeType, size } },
+      backgroundVideoMobile{ asset->{ url, mimeType } },
+      videoPoster ${FIGURE},
       leadParagraph,
       body,
       link ${LINK},
@@ -138,6 +165,7 @@ export const SITE_QUERY = /* groq */ `{
       heading,
       description,
       image ${FIGURE},
+      cta ${LINK},
       "showroom": showroom-> ${SHOWROOM}
     },
 
@@ -206,26 +234,34 @@ export const VEHICLE_QUERY = /* groq */ `*[_type == "vehicle" && slug.current ==
   testDriveLink ${LINK}
 }`
 
-/** Slugs of every published vehicle — used for the "other models" strip. */
-export const VEHICLE_LINKS_QUERY = /* groq */ `*[_type == "vehicle" && defined(slug.current)]{
-  _id,
-  "slug": slug.current,
-  name,
-  image ${FIGURE}
-}`
-
-/** Copy and field labels for the test-drive form and its thank-you page. */
+/** The test-drive page, its form copy and its thank-you page. */
 export const TEST_DRIVE_QUERY = /* groq */ `*[_type == "testDrivePage"][0]{
   eyebrow,
   heading,
   intro,
   image ${FIGURE},
-  labels{
-    fullName, email, phone, model, location, preferredDate, message,
-    consent, submit, submitting, required, invalidEmail, errorTitle, errorBody
+  modelStep{
+    heading,
+    intro,
+    models[defined(vehicle->_id)]{
+      _key,
+      name,
+      powertrain,
+      image ${FIGURE},
+      "vehicle": vehicle->{ _id, "slug": slug.current, name, image ${FIGURE} }
+    }
   },
-  locationPlaceholder,
-  modelPlaceholder,
+  detailsStep{ heading },
+  centreStep{ heading, intro },
+  privacyStep{ heading, privacyLink ${LINK}, termsLink ${LINK} },
+  nextSteps{ heading, items[]{ _key, title, body } },
+  disclaimers,
+  labels{
+    country, countryValue, firstName, firstNamePlaceholder, lastName, lastNamePlaceholder,
+    email, emailPlaceholder, phone, phonePlaceholder, phonePrefix,
+    privacyConsent, consentRequired, marketingConsent,
+    submit, submitting, required, invalidEmail, errorTitle, errorBody
+  },
   thankYou{
     eyebrow,
     heading,

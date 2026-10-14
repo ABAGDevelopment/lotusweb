@@ -1,0 +1,157 @@
+/* Site navbar: the drawer, its sliding panes and the menu button. Layout
+   and type are Tailwind classes in Navbar.tsx. */
+
+:root {
+  --nav-ease: cubic-bezier(0.7, 0, 0.2, 1);
+  /* Which way "towards the end edge" is on the x axis. */
+  --nav-x: 1;
+}
+[dir='rtl'] {
+  --nav-x: -1;
+}
+
+/* /#section links land below the bar, not under it. */
+html {
+  scroll-padding-top: 56px;
+}
+@media (min-width: 1280px) {
+  html {
+    scroll-padding-top: 72px;
+  }
+}
+
+.site-nav {
+  transition:
+    transform 0.5s var(--nav-ease),
+    background-color 0.3s ease;
+}
+
+/* Inline links: the global .nav-link underline, also on keyboard focus. */
+.site-nav-link:hover .nav-link::after,
+.site-nav-link:focus-visible .nav-link::after {
+  width: 100%;
+}
+
+/* Focus rings in brand colours: yellow on the dark bar, black in the drawer. */
+.site-nav :focus-visible {
+  outline: 2px solid #ffdf00;
+  outline-offset: 2px;
+}
+.nav-drawer :focus-visible {
+  outline: 2px solid #0f0f0f;
+  outline-offset: 2px;
+}
+
+/* Three stepped lines that cross into an X. */
+.menu-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 5px;
+}
+.menu-btn > span {
+  display: block;
+  height: 2px;
+  width: 22px;
+  background: currentColor;
+  transition:
+    width 0.3s ease,
+    transform 0.5s var(--nav-ease),
+    opacity 0.3s ease;
+}
+.menu-btn > span:nth-child(2) {
+  width: 17px;
+}
+.menu-btn > span:nth-child(3) {
+  width: 12px;
+}
+.menu-btn:hover > span {
+  width: 22px;
+}
+.menu-btn[aria-expanded='true'] > span:nth-child(1) {
+  width: 22px;
+  transform: translateY(7px) rotate(45deg);
+}
+.menu-btn[aria-expanded='true'] > span:nth-child(2) {
+  opacity: 0;
+}
+.menu-btn[aria-expanded='true'] > span:nth-child(3) {
+  width: 22px;
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Closed: hidden after the slide-out, so nothing inside is tabbable. */
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  background: rgb(0 0 0 / 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.5s var(--nav-ease),
+    visibility 0s 0.5s;
+}
+.nav-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s var(--nav-ease);
+}
+
+.nav-drawer {
+  position: fixed;
+  top: 0;
+  inset-inline-end: 0;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  transform: translateX(calc(var(--nav-x) * 100%));
+  visibility: hidden;
+  transition:
+    transform 0.5s var(--nav-ease),
+    visibility 0s 0.5s;
+}
+.nav-drawer.is-open {
+  transform: none;
+  visibility: visible;
+  transition: transform 0.5s var(--nav-ease);
+}
+@media (min-width: 768px) {
+  .nav-drawer {
+    width: min(480px, 70vw);
+  }
+}
+@media (min-width: 1280px) {
+  .nav-drawer {
+    width: min(42vw, 600px);
+  }
+}
+
+/* Main and sub pane side by side; the track slides one pane width. */
+.nav-track {
+  display: grid;
+  grid-template-columns: 100% 100%;
+  height: 100%;
+  transition: transform 0.5s var(--nav-ease);
+}
+.nav-track.is-sub {
+  transform: translateX(calc(var(--nav-x) * -100%));
+}
+.nav-pane[aria-hidden='true'] {
+  visibility: hidden;
+  transition: visibility 0s 0.5s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav,
+  .site-nav *,
+  .nav-overlay,
+  .nav-drawer,
+  .nav-drawer * {
+    transition: none !important;
+  }
+}

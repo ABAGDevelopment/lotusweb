@@ -1,300 +1,488 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { FormEvent, ReactNode } from 'react'
+import CmsLink from '@/components/common/CmsLink'
+import SanityImage from '@/components/common/SanityImage'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { ui } from '@/i18n/ui'
 import { useLiveQuery } from '@/sanity/useLiveQuery'
-import {
-  SHOWROOM_OPTIONS_QUERY,
-  TEST_DRIVE_QUERY,
-  VEHICLE_LINKS_QUERY,
-} from '@/sanity/queries'
+import { SHOWROOM_OPTIONS_QUERY } from '@/sanity/queries'
 import { submitEnquiry } from '@/lib/submitEnquiry'
 import { cn } from '@/lib/utils'
 import TextField from './TextField'
-import SelectTile from './SelectTile'
-import type { Showroom, TestDrivePage, Vehicle } from '@/sanity/types'
+import checkIcon from '@/assets/test-drive/check.svg'
+import prevIcon from '@/assets/test-drive/arrow-prev.svg'
+import nextIcon from '@/assets/test-drive/arrow-next.svg'
+import type { Showroom, TestDriveModel, TestDrivePage } from '@/sanity/types'
 
-type Field = 'fullName' | 'email' | 'phone' | 'model' | 'location' | 'preferredDate' | 'message'
-type Values = Record<Field, string>
-type Errors = Partial<Record<Field | 'consent' | 'form', string>>
+/** Figma's 88px desktop gutter, the site gutter below it. */
+export const SECTION_X = 'px-5 md:px-8 lg:px-[88px]'
+/** Section headings: wide tracking through the variable .font-display pins. */
+export const SECTION_HEADING =
+  'font-display text-[20px] leading-8 uppercase lg:text-[24px] [--lotus-display-tracking:0.18em] rtl:[--lotus-display-tracking:normal]'
+/** Step content sits under the heading, past the number. */
+const INDENT = 'lg:ms-[60px]'
 
-const EMPTY: Values = {
-  fullName: '', email: '', phone: '', model: '', location: '', preferredDate: '', message: '',
+export function StepNumber({ n }: { n: number }) {
+  return (
+    <span className="grid size-10 shrink-0 place-items-center rounded-full bg-lotus-yellow text-base font-bold leading-6 text-black">
+      {n}
+    </span>
+  )
 }
 
-/** Which fields each step is responsible for, so validation stays per-step. */
-const STEP_FIELDS: Field[][] = [['model'], ['location', 'preferredDate'], ['fullName', 'email', 'phone']]
-const TOTAL_STEPS = 3
+function StepHeader({ n, children }: { n: number; children: ReactNode }) {
+  return (
+    <div className="flex items-start gap-5">
+      <StepNumber n={n} />
+      <h2 className={cn(SECTION_HEADING, 'pt-1')}>{children}</h2>
+    </div>
+  )
+}
 
-function today(): string {
-  return new Date().toISOString().slice(0, 10)
+function FieldError({ message }: { message?: string }) {
+  return message ? (
+    <span role="alert" className="mt-3 block text-xs leading-4 text-[#d32f2f]">
+      {message}
+    </span>
+  ) : null
+}
+
+/** Outline a card while its hidden radio has keyboard focus. */
+const CARD_FOCUS =
+  'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-black'
+
+function Checkbox({
+  checked,
+  onChange,
+  invalid,
+  className,
+  children,
+}: {
+  checked: boolean
+  onChange: (checked: boolean) => void
+  invalid?: boolean
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <label className={cn('flex cursor-pointer items-start gap-4 text-sm leading-5 text-black', className)}>
+      <span className="relative mt-0.5 grid size-5 shrink-0 place-items-center">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          data-invalid={invalid ? 'true' : 'false'}
+          aria-invalid={invalid}
+          className={cn(
+            'peer size-5 cursor-pointer appearance-none border bg-white checked:border-lotus-yellow checked:bg-lotus-yellow',
+            'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black',
+            invalid ? 'border-[#d32f2f]' : 'border-black',
+          )}
+        />
+        <img
+          src={checkIcon}
+          alt=""
+          width={9}
+          height={10}
+          className="pointer-events-none absolute hidden peer-checked:block"
+        />
+      </span>
+      <span>{children}</span>
+    </label>
+  )
+}
+
+/** Figma "Choose your model": a scrolling row of radio cards with arrows. */
+function ModelPicker({
+  legend,
+  models,
+  value,
+  onChange,
+  invalid,
+}: {
+  legend: string
+  models: TestDriveModel[]
+  value: string
+  onChange: (key: string) => void
+  invalid: boolean
+}) {
+  const { t, locale, isRtl } = useLocale()
+  const track = useRef<HTMLDivElement>(null)
+  const [overflows, setOverflows] = useState(false)
+
+  useEffect(() => {
+    const el = track.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setOverflows(el.scrollWidth > el.clientWidth + 1))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [models.length])
+
+  // One card (plus the 24px gap) per click; scrollLeft runs negative in RTL.
+  const scroll = (direction: 1 | -1) => {
+    const el = track.current
+    const card = el?.firstElementChild as HTMLElement | null
+    el?.scrollBy({ left: direction * ((card?.offsetWidth ?? 360) + 24) * (isRtl ? -1 : 1), behavior: 'smooth' })
+  }
+
+  const arrow = 'absolute top-1/2 z-10 hidden size-10 -translate-y-1/2 place-items-center bg-black lg:grid'
+
+  return (
+    // min-w-0: a fieldset otherwise refuses to shrink below its content.
+    <fieldset className="relative mt-10 min-w-0">
+      <legend className="sr-only">{legend}</legend>
+      <div
+        ref={track}
+        className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {models.map((m) => {
+          const selected = value === m._key
+          const name = t(m.name) || t(m.vehicle?.name)
+          return (
+            <label
+              key={m._key}
+              className={cn(
+                'relative flex w-[min(360px,80vw)] shrink-0 cursor-pointer snap-start flex-col border-2 p-[2px]',
+                CARD_FOCUS,
+                selected ? 'border-lotus-yellow' : 'border-[#e5e5e5] hover:border-[#999]',
+              )}
+            >
+              <input
+                type="radio"
+                name="model"
+                value={m._key}
+                checked={selected}
+                onChange={() => onChange(m._key)}
+                data-invalid={invalid ? 'true' : 'false'}
+                className="sr-only"
+              />
+              <span className="relative flex h-[260px] items-center justify-center overflow-hidden bg-[#f2f2f2]">
+                <SanityImage
+                  image={m.image?.asset ? m.image : m.vehicle?.image}
+                  fallbackAlt={name}
+                  sizes="212px"
+                  width={424}
+                  className="aspect-square h-[81.5%] w-auto object-cover"
+                />
+                {/* Figma ticks every box; only the chosen one here, as it is a single choice. */}
+                <span
+                  className={cn(
+                    'absolute start-4 top-4 grid size-6 place-items-center border-2',
+                    selected ? 'border-lotus-yellow bg-lotus-yellow' : 'border-[#999] bg-white',
+                  )}
+                >
+                  {selected ? <img src={checkIcon} alt="" width={9} height={10} /> : null}
+                </span>
+              </span>
+              <span className="flex flex-col gap-[10.5px] px-5 pb-[22.5px] pt-5">
+                <span className="text-[18px] font-semibold uppercase leading-7 tracking-[0.15em] text-black">
+                  {name}
+                </span>
+                {t(m.powertrain) ? (
+                  <span className="text-[10px] uppercase leading-[15px] tracking-[0.15em] text-[#5a5a5a]">
+                    {t(m.powertrain)}
+                  </span>
+                ) : null}
+              </span>
+            </label>
+          )
+        })}
+      </div>
+      {overflows ? (
+        <>
+          <button
+            type="button"
+            onClick={() => scroll(-1)}
+            aria-label={ui(locale, 'previous')}
+            className={cn(arrow, '-start-5')}
+          >
+            <img src={prevIcon} alt="" width={7.5} height={12} className="rtl:-scale-x-100" />
+          </button>
+          <button
+            type="button"
+            onClick={() => scroll(1)}
+            aria-label={ui(locale, 'next')}
+            className={cn(arrow, '-end-5')}
+          >
+            <img src={nextIcon} alt="" width={7.5} height={12} className="rtl:-scale-x-100" />
+          </button>
+        </>
+      ) : null}
+    </fieldset>
+  )
+}
+
+type Values = Record<'model' | 'centre' | 'firstName' | 'lastName' | 'email' | 'phone', string>
+type Errors = Partial<Record<keyof Values | 'consent' | 'form', string>>
+
+const EMPTY: Values = { model: '', centre: '', firstName: '', lastName: '', email: '', phone: '' }
+
+/** `?model=` carries a vehicle slug; prefer the card that is that vehicle itself (Eletre over Eletre X). */
+function modelForParam(models: TestDriveModel[], param?: string): string {
+  if (!param) return ''
+  const byKey = models.find((m) => m._key === param)
+  if (byKey) return byKey._key
+  const matches = models.filter((m) => m.vehicle?.slug === param)
+  return (matches.find((m) => !m.name?.en) ?? matches[0])?._key ?? ''
 }
 
 /**
- * Three-step enquiry form, shared by the modal and the /test-drive page.
- * Splitting it keeps the modal compact and lets each step carry its own
- * validation, so a mistake is reported next to the field that caused it.
+ * Figma "Book a test drive": choose a model, then three numbered steps —
+ * your details, a Lotus Centre, privacy — and send. All copy comes from the
+ * Test drive page document.
  */
 export default function TestDriveForm({
+  data,
   initialModel,
   onSuccess,
 }: {
+  data?: TestDrivePage | null
   initialModel?: string
   onSuccess?: (name: string) => void
 }) {
   const { t, locale } = useLocale()
-  const { data } = useLiveQuery<TestDrivePage>(TEST_DRIVE_QUERY)
-  const { data: vehicles } = useLiveQuery<Vehicle[]>(VEHICLE_LINKS_QUERY)
   const { data: showrooms } = useLiveQuery<Showroom[]>(SHOWROOM_OPTIONS_QUERY)
+  const models = data?.modelStep?.models ?? []
+  const L = data?.labels
 
-  const [step, setStep] = useState(0)
   const [values, setValues] = useState<Values>(EMPTY)
   const [consent, setConsent] = useState(false)
+  const [marketing, setMarketing] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
   const [sending, setSending] = useState(false)
 
-  // Arriving from a car card or detail page: preselect and skip step 1.
+  // Arriving from a car's page or menu link: preselect it.
+  const preselected = modelForParam(models, initialModel)
   useEffect(() => {
-    if (!initialModel) return
-    setValues((v) => (v.model ? v : { ...v, model: initialModel }))
-    setStep((s) => (s === 0 ? 1 : s))
-  }, [initialModel])
+    if (preselected) setValues((v) => (v.model ? v : { ...v, model: preselected }))
+  }, [preselected])
 
-  const L = data?.labels
-  const req = t(L?.required, 'This field is required')
+  // With a single centre there is nothing to choose.
+  useEffect(() => {
+    if (showrooms?.length === 1) setValues((v) => (v.centre ? v : { ...v, centre: showrooms[0]._id }))
+  }, [showrooms])
 
-  const set = (field: Field, value: string) => {
+  const set = (field: keyof Values, value: string) => {
     setValues((v) => ({ ...v, [field]: value }))
     setErrors((e) => ({ ...e, [field]: undefined, form: undefined }))
   }
 
-  const validateStep = (index: number): Errors => {
+  const validate = (): Errors => {
+    const req = t(L?.required)
     const next: Errors = {}
-    for (const field of STEP_FIELDS[index]) {
+    for (const field of Object.keys(EMPTY) as (keyof Values)[]) {
       if (!values[field].trim()) next[field] = req
     }
-    if (index === 2) {
-      if (values.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
-        next.email = t(L?.invalidEmail, 'Enter a valid email address')
-      }
-      if (!consent) next.consent = req
+    if (values.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
+      next.email = t(L?.invalidEmail)
     }
+    if (!consent) next.consent = req
     return next
   }
 
-  const goNext = () => {
-    const found = validateStep(step)
-    setErrors(found)
-    if (Object.keys(found).length > 0) return
-    setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1))
-  }
-
-  const onSubmit = async (event: React.FormEvent) => {
+  const onSubmit = async (event: FormEvent) => {
     event.preventDefault()
-    if (step < TOTAL_STEPS - 1) {
-      goNext()
-      return
-    }
-    const found = validateStep(2)
+    const found = validate()
     setErrors(found)
     if (Object.keys(found).length > 0) {
-      document.querySelector<HTMLElement>('[data-invalid="true"]')?.focus()
+      // After the re-render, so the first field still marked invalid gets focus.
+      requestAnimationFrame(() => document.querySelector<HTMLElement>('form [data-invalid="true"]')?.focus())
       return
     }
+    const model = models.find((m) => m._key === values.model)
+    const centre = showrooms?.find((s) => s._id === values.centre)
+    const fullName = `${values.firstName.trim()} ${values.lastName.trim()}`
     setSending(true)
     try {
-      await submitEnquiry({ ...values, locale })
-      onSuccess?.(values.fullName)
+      // English names, so the dealer reads the same thing whatever the visitor's language.
+      await submitEnquiry({
+        fullName,
+        email: values.email.trim(),
+        phone: [L?.phonePrefix, values.phone.trim()].filter(Boolean).join(' '),
+        model: model?.name?.en || model?.vehicle?.name?.en || t(model?.name),
+        location: centre?.name?.en || t(centre?.name),
+        preferredDate: '',
+        message: '',
+        country: L?.countryValue?.en || t(L?.countryValue),
+        marketingConsent: marketing,
+        locale,
+      })
+      onSuccess?.(fullName)
     } catch (error) {
       setErrors({ form: error instanceof Error ? error.message : String(error) })
       setSending(false)
     }
   }
 
-  const stepTitles = useMemo(
-    () => [t(L?.model, 'Model'), t(L?.location, 'Location'), ui(locale, 'yourDetails')],
-    [L, t, locale],
-  )
+  // {privacy} and {terms} in the consent text become the CMS links.
+  const consentText = t(L?.privacyConsent)
+    .split(/(\{privacy\}|\{terms\})/)
+    .map((part, i) =>
+      part === '{privacy}' || part === '{terms}' ? (
+        <CmsLink
+          key={i}
+          link={part === '{privacy}' ? data?.privacyStep?.privacyLink : data?.privacyStep?.termsLink}
+          className="underline decoration-1 underline-offset-2"
+        />
+      ) : (
+        part
+      ),
+    )
+
+  const section = cn('border-b border-black/10 py-14 lg:py-20', SECTION_X)
 
   return (
-    <form onSubmit={onSubmit} noValidate className="space-y-6">
-      {/* Progress */}
-      <div className="flex items-center gap-2">
-        {stepTitles.map((title, i) => (
-          <div key={title} className="flex-1">
-            <div
-              className={cn(
-                'h-0.5 rounded-full transition-colors',
-                i <= step ? 'bg-lotus-yellow' : 'bg-lotus-border',
-              )}
-            />
-            <span
-              className={cn(
-                'mt-2 block text-[10px] font-bold tracking-widest uppercase',
-                i === step ? 'text-lotus-yellow' : 'text-lotus-text-faint',
-              )}
-            >
-              {i + 1}. {title}
-            </span>
-          </div>
-        ))}
-      </div>
+    <form onSubmit={onSubmit} noValidate className="bg-white text-black">
+      <section className={section}>
+        <h2 className={SECTION_HEADING}>{t(data?.modelStep?.heading)}</h2>
+        {t(data?.modelStep?.intro) ? (
+          <p className="mt-3 text-sm font-light leading-5 text-[#5a5a5a]">{t(data?.modelStep?.intro)}</p>
+        ) : null}
+        <ModelPicker
+          legend={t(data?.modelStep?.heading)}
+          models={models}
+          value={values.model}
+          onChange={(key) => set('model', key)}
+          invalid={!!errors.model}
+        />
+        <FieldError message={errors.model} />
+      </section>
 
-      {/* Step 1 — car */}
-      {step === 0 ? (
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {(vehicles ?? []).map((v) => (
-              <SelectTile
-                key={v._id}
-                title={t(v.name)}
-                image={v.image}
-                selected={values.model === v.slug}
-                onSelect={() => set('model', v.slug ?? '')}
-              />
-            ))}
-          </div>
-          {errors.model ? (
-            <span role="alert" className="block text-xs text-red-400">
-              {errors.model}
-            </span>
-          ) : null}
-        </div>
-      ) : null}
-
-      {/* Step 2 — showroom and date */}
-      {step === 1 ? (
-        <div className="space-y-5">
-          <div className="space-y-3">
-            <span className="text-xs font-bold tracking-widest uppercase text-lotus-text-faint">
-              {t(L?.location)}
-              <span className="text-lotus-yellow ms-1">*</span>
-            </span>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {(showrooms ?? []).map((s) => (
-                <SelectTile
-                  key={s._id}
-                  title={t(s.name)}
-                  subtitle={t(s.address)}
-                  image={s.image}
-                  selected={values.location === t(s.name)}
-                  onSelect={() => set('location', t(s.name))}
-                />
-              ))}
-            </div>
-            {errors.location ? (
-              <span role="alert" className="block text-xs text-red-400">
-                {errors.location}
-              </span>
-            ) : null}
-          </div>
-
+      <section className={section}>
+        <StepHeader n={1}>{t(data?.detailsStep?.heading)}</StepHeader>
+        <div className={cn('mt-8 grid max-w-[768px] gap-x-10 gap-y-7 sm:grid-cols-2 lg:mt-12', INDENT)}>
+          <TextField className="sm:col-span-2" label={t(L?.country)} value={t(L?.countryValue)} disabled />
           <TextField
-            label={t(L?.preferredDate, 'Preferred date')}
-            type="date"
-            required
-            min={today()}
-            value={values.preferredDate}
-            onChange={(v) => set('preferredDate', v)}
-            error={errors.preferredDate}
+            label={t(L?.firstName)}
+            placeholder={t(L?.firstNamePlaceholder)}
+            autoComplete="given-name"
+            value={values.firstName}
+            onChange={(v) => set('firstName', v)}
+            error={errors.firstName}
           />
-        </div>
-      ) : null}
-
-      {/* Step 3 — details */}
-      {step === 2 ? (
-        <div className="space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <TextField
-              label={t(L?.fullName, 'Full name')}
-              required
-              autoComplete="name"
-              value={values.fullName}
-              onChange={(v) => set('fullName', v)}
-              error={errors.fullName}
-            />
-            <TextField
-              label={t(L?.email, 'Email')}
-              type="email"
-              required
-              autoComplete="email"
-              value={values.email}
-              onChange={(v) => set('email', v)}
-              error={errors.email}
-            />
-          </div>
           <TextField
-            label={t(L?.phone, 'Phone')}
+            label={t(L?.lastName)}
+            placeholder={t(L?.lastNamePlaceholder)}
+            autoComplete="family-name"
+            value={values.lastName}
+            onChange={(v) => set('lastName', v)}
+            error={errors.lastName}
+          />
+          <TextField
+            label={t(L?.email)}
+            type="email"
+            placeholder={t(L?.emailPlaceholder)}
+            autoComplete="email"
+            value={values.email}
+            onChange={(v) => set('email', v)}
+            error={errors.email}
+          />
+          <TextField
+            label={t(L?.phone)}
             type="tel"
-            required
-            autoComplete="tel"
+            prefix={L?.phonePrefix ?? undefined}
+            placeholder={t(L?.phonePlaceholder)}
+            autoComplete="tel-national"
             value={values.phone}
             onChange={(v) => set('phone', v)}
             error={errors.phone}
           />
-
-          <label className="block space-y-2">
-            <span className="text-xs font-bold tracking-widest uppercase text-lotus-text-faint">
-              {t(L?.message)}
-            </span>
-            <textarea
-              rows={3}
-              value={values.message}
-              onChange={(e) => set('message', e.target.value)}
-              className="w-full bg-transparent border border-lotus-border focus:border-lotus-yellow px-4 py-3 text-sm outline-none transition-colors"
-            />
-          </label>
-
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={consent}
-              data-invalid={errors.consent ? 'true' : 'false'}
-              onChange={(e) => {
-                setConsent(e.target.checked)
-                setErrors((x) => ({ ...x, consent: undefined }))
-              }}
-              className="mt-1 accent-lotus-yellow w-4 h-4"
-            />
-            <span className="text-sm text-lotus-text-muted leading-relaxed">{t(L?.consent)}</span>
-          </label>
-          {errors.consent ? (
-            <span role="alert" className="block text-xs text-red-400 -mt-3">
-              {errors.consent}
-            </span>
-          ) : null}
         </div>
-      ) : null}
+      </section>
 
-      {errors.form ? (
-        <div role="alert" className="border border-red-500/60 bg-red-500/10 rounded-sm p-4 space-y-1">
-          <p className="text-sm font-bold">{t(L?.errorTitle, 'Something went wrong')}</p>
-          <p className="text-sm text-lotus-text-muted">{t(L?.errorBody)}</p>
-          <p className="text-xs text-lotus-text-faint font-mono break-words">{errors.form}</p>
-        </div>
-      ) : null}
-
-      <div className="flex gap-3">
-        {step > 0 ? (
-          <button
-            type="button"
-            onClick={() => setStep((s) => s - 1)}
-            className="btn-outline px-6 py-3 text-xs font-bold tracking-widest uppercase"
-          >
-            {ui(locale, 'back')}
-          </button>
+      <section className={section}>
+        <StepHeader n={2}>{t(data?.centreStep?.heading)}</StepHeader>
+        {t(data?.centreStep?.intro) ? (
+          <p className={cn('mt-6 max-w-[576px] text-sm font-light leading-5 text-[#5a5a5a]', INDENT)}>
+            {t(data?.centreStep?.intro)}
+          </p>
         ) : null}
-        <button
-          type="submit"
-          disabled={sending}
-          className="btn-primary flex-1 py-3 text-xs font-bold tracking-widest uppercase disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {step < TOTAL_STEPS - 1
-            ? ui(locale, 'next')
-            : sending
-              ? t(L?.submitting, 'Sending…')
-              : t(L?.submit, 'Submit')}
-        </button>
-      </div>
+        <fieldset className={cn('mt-10 grid min-w-0 gap-6 sm:grid-cols-2 lg:grid-cols-3', INDENT)}>
+          <legend className="sr-only">{t(data?.centreStep?.heading)}</legend>
+          {(showrooms ?? []).map((s) => {
+            const selected = values.centre === s._id
+            return (
+              <label
+                key={s._id}
+                className={cn(
+                  'relative flex cursor-pointer flex-col border-2 p-[2px]',
+                  CARD_FOCUS,
+                  selected ? 'border-lotus-yellow' : 'border-[#e5e5e5] hover:border-[#999]',
+                )}
+              >
+                <input
+                  type="radio"
+                  name="centre"
+                  value={s._id}
+                  checked={selected}
+                  onChange={() => set('centre', s._id)}
+                  data-invalid={errors.centre ? 'true' : 'false'}
+                  className="sr-only"
+                />
+                <SanityImage
+                  image={s.image}
+                  fallbackAlt={t(s.name)}
+                  sizes="(min-width: 1024px) 385px, (min-width: 640px) 50vw, 100vw"
+                  className="h-[180px] w-full object-cover"
+                />
+                <span className="flex items-start justify-between gap-4 p-5">
+                  <span className="flex flex-col gap-1">
+                    <span className="text-sm font-semibold leading-5">{t(s.name)}</span>
+                    <span className="whitespace-pre-line text-xs leading-4 text-[#5a5a5a]">{t(s.address)}</span>
+                  </span>
+                  <span className="mt-1 grid size-5 shrink-0 place-items-center rounded-full border-2 border-[#999]">
+                    {selected ? <span className="size-[10px] bg-lotus-yellow" /> : null}
+                  </span>
+                </span>
+              </label>
+            )
+          })}
+        </fieldset>
+        <div className={INDENT}>
+          <FieldError message={errors.centre} />
+        </div>
+      </section>
+
+      <section className={cn('py-14 lg:py-20', SECTION_X)}>
+        <StepHeader n={3}>{t(data?.privacyStep?.heading)}</StepHeader>
+        <div className={cn('mt-8 flex max-w-[672px] flex-col gap-5 lg:mt-10', INDENT)}>
+          <div>
+            <Checkbox
+              checked={consent}
+              invalid={!!errors.consent}
+              onChange={(checked) => {
+                setConsent(checked)
+                setErrors((e) => ({ ...e, consent: undefined }))
+              }}
+            >
+              {consentText}{' '}
+              {t(L?.consentRequired) ? <span className="text-[#5a5a5a]">{t(L?.consentRequired)}</span> : null}
+            </Checkbox>
+            <div className="ms-9">
+              <FieldError message={errors.consent} />
+            </div>
+          </div>
+          <Checkbox checked={marketing} onChange={setMarketing} className="pb-5">
+            {t(L?.marketingConsent)}
+          </Checkbox>
+
+          {errors.form ? (
+            <div role="alert" className="space-y-1 border border-[#d32f2f] bg-[#d32f2f]/5 p-4">
+              <p className="text-sm font-semibold">{t(L?.errorTitle)}</p>
+              <p className="text-sm text-[#5a5a5a]">{t(L?.errorBody)}</p>
+              <p className="break-words font-mono text-xs text-[#5a5a5a]">{errors.form}</p>
+            </div>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={sending}
+            className="w-full bg-lotus-yellow py-5 text-sm font-semibold uppercase leading-5 tracking-[0.15em] text-black transition-colors hover:bg-[#e6c800] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {sending ? t(L?.submitting) : t(L?.submit)}
+          </button>
+        </div>
+      </section>
     </form>
   )
 }

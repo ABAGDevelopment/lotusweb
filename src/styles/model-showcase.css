@@ -1,0 +1,222 @@
+/**
+ * Homepage "Our Models" showcase. Plain CSS rather than utilities: the 992px
+ * breakpoint, container query units and the hover/pointer media query all
+ * read more clearly here. Sizes are px to match the Lotus global site.
+ */
+
+.model-showcase {
+  padding-block: 56px;
+  padding-inline: 2rem; /* the site gutter, same as px-8 elsewhere */
+}
+
+.model-showcase__header {
+  margin-block-end: 30px;
+  text-align: center;
+}
+.model-showcase__title {
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: 0.2em;
+}
+.model-showcase__subtitle {
+  margin-block-start: 12px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Below 992px the rows dissolve and every card is one item in a column. */
+.model-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.model-row {
+  display: contents;
+}
+
+.model-card {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  min-height: 420px;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: flex-grow 0.3s ease;
+}
+.model-card__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.model-card__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 16px;
+  /* Dark from the bottom for the specs and buttons, a light shade at the top
+     for the wordmark. */
+  background:
+    linear-gradient(to top, rgb(0 0 0 / 0.85), rgb(0 0 0 / 0.45) 35%, transparent 65%),
+    linear-gradient(to bottom, rgb(0 0 0 / 0.35), transparent 25%);
+}
+
+.model-card__name {
+  display: flex;
+  justify-content: center;
+  height: 16px;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0.2em;
+}
+.model-card__name img {
+  height: 100%;
+  width: auto;
+}
+
+.model-card__specs {
+  display: flex;
+  gap: 16px;
+  margin-block-end: 24px;
+}
+/* Each spec cell is a container so a value only steps down from 26px when
+   its cell is too narrow for it: three specs on a phone, or 992-1090px.
+   21cqi fits about 4.75em; the widest values ("300 km/h", "918 حصان") are 4.5. */
+.model-card__specs > div {
+  container-type: inline-size;
+}
+.model-card__value {
+  font-size: min(26px, 21cqi);
+  font-weight: 300;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.model-card__label {
+  margin-block-start: 8px;
+  font-size: 12px;
+  color: rgb(255 255 255 / 0.7);
+}
+/* Blank line matching the partner card's secondary unit; only needed while
+   the pair sits side by side. */
+.model-card__label--pair {
+  display: none;
+}
+
+.model-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/* The site outline border (#333) disappears against the photo. */
+.model-card .btn-outline {
+  border-color: rgb(255 255 255 / 0.6);
+}
+.model-card .btn-outline:hover {
+  border-color: #ffdf00;
+}
+
+@media (min-width: 992px) {
+  .model-showcase {
+    padding-block: 100px;
+    padding-inline: 0;
+  }
+  /* Columns 3–23 of a 24-column grid. */
+  .model-showcase__inner {
+    width: calc(100% * 20 / 24);
+    margin-inline: auto;
+  }
+  .model-showcase__header {
+    margin-block-end: 56px;
+  }
+  .model-showcase__title {
+    font-size: 40px;
+  }
+
+  .model-grid {
+    container-type: inline-size;
+  }
+  .model-row {
+    display: flex;
+    gap: 24px;
+  }
+  /* Square at rest; hover only trades width between the pair. */
+  .model-card {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    aspect-ratio: auto;
+    height: calc(100cqw / 2 - 12px);
+  }
+  .model-card__content {
+    padding: 40px 30px;
+  }
+  .model-card__name {
+    height: 24px;
+    font-size: 24px;
+  }
+  .model-card__actions {
+    flex-direction: row;
+    gap: 32px;
+  }
+  .model-card__label--pair {
+    display: block;
+  }
+  /* A full 26px line even when the value has stepped down, so a 3-spec card
+     stays level with a 2-spec partner. */
+  .model-card__value {
+    min-height: calc(26px * 1.2);
+  }
+  .model-card__actions > * {
+    flex: 1 1 0;
+  }
+}
+
+@media (min-width: 992px) and (hover: hover) and (pointer: fine) {
+  .model-row:hover .model-card,
+  .model-row:focus-within .model-card {
+    flex-grow: 0.9;
+  }
+  .model-row .model-card:hover,
+  .model-row .model-card:focus-within {
+    flex-grow: 1.1;
+  }
+  .model-card:hover .model-card__img,
+  .model-card:focus-within .model-card__img {
+    transform: scale(1.06);
+  }
+}
+
+/* ---- FlipNumber ------------------------------------------------------ */
+/* The digit window matches the line height, so a rolled digit sits on the
+   same baseline as the text beside it whatever the font's metrics. */
+.flip-number {
+  display: inline-block;
+  line-height: 1.2;
+}
+.flip-run {
+  white-space: nowrap;
+}
+.flip-digit {
+  display: inline-block;
+  height: 1.2em;
+  overflow: hidden;
+  vertical-align: top;
+}
+.flip-strip {
+  display: block;
+  transform: translateY(calc(var(--d, 0) * -1.2em));
+  transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.flip-strip > span {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-strip {
+    transition: none;
+  }
+}

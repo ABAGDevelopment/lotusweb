@@ -56,12 +56,12 @@ export default function OffersCarouselSection({
   }
 
   return (
-    <section className="py-24 px-8 lg:px-20" id="offers">
-      <div className="flex justify-between items-end mb-12">
-        <h2 className="font-display text-5xl font-bold uppercase tracking-tighter">
+    <section className="py-20 md:py-24 px-5 md:px-8 lg:px-20" id="offers">
+      <div className="flex flex-wrap justify-center md:justify-between items-end gap-6 mb-8 md:mb-12">
+        <h2 className="font-display heading-display md:text-5xl font-bold uppercase tracking-tighter">
           {t(data.heading)}
         </h2>
-        <div className="flex gap-4">
+        <div className="hidden md:flex gap-4">
           <button
             type="button"
             onClick={() => scrollBy(-1)}
@@ -93,7 +93,7 @@ export default function OffersCarouselSection({
         </div>
       </div>
 
-      <div ref={sliderRef} className="offers-slider flex gap-6 overflow-x-auto pb-12 snap-x">
+      <div ref={sliderRef} className="offers-slider flex gap-6 overflow-x-auto pb-12 snap-x -mx-5 px-5 scroll-px-5 md:mx-0 md:px-0 md:scroll-px-0">
         {offers.map((offer) => (
           <div
             key={offer._id}
@@ -106,7 +106,7 @@ export default function OffersCarouselSection({
               width={900}
               className="w-full aspect-video object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-lotus-black/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-8">
+            <div className="absolute inset-0 bg-gradient-to-t from-lotus-black/90 to-transparent md:opacity-0 md:group-hover:opacity-100 transition-opacity flex flex-col justify-end p-6 md:p-8">
               <h3 className="text-2xl font-bold uppercase">{t(offer.title)}</h3>
               <p className="text-lotus-text-muted">{t(offer.subtitle)}</p>
               {offer.link?.href ? (

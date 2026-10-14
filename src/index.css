@@ -82,4 +82,36 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Lotus-style scaling on desktop only. Mobile stays at 16px; from 1024px the
+     layout scales with the viewport, matching the current look at 1440px. */
+  @media (min-width: 1024px) {
+    html {
+      font-size: clamp(14px, 100vw / 90, 22px);
+    }
+  }
+}
+
+/* In the components layer so lg:/xl: text sizes still override it. */
+@layer components {
+  /* Section headings. Phones follow the Figma mobile design: small, centred,
+     yellow and widely tracked. Long words wrap instead of spilling. */
+  .heading-display {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    text-align: center;
+    color: theme('colors.lotus.yellow');
+    --lotus-display-tracking: 0.18em;
+    overflow-wrap: anywhere;
+  }
+  /* From 768px: fluid display size; alignment, colour and tracking as before. */
+  @media (min-width: theme('screens.md')) {
+    .heading-display {
+      font-size: clamp(2rem, 6vw + 0.5rem, 6rem);
+      line-height: 1;
+      text-align: inherit;
+      color: inherit;
+      --lotus-display-tracking: inherit;
+    }
+  }
 }
