@@ -1,4 +1,6 @@
 import type { CSSProperties } from 'react'
+// The .flip-* rules live with the model showcase, the first user.
+import '@/styles/model-showcase.css'
 
 const DIGITS = [...'0123456789']
 

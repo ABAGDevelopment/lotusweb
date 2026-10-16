@@ -219,17 +219,37 @@ export const VEHICLE_QUERY = /* groq */ `*[_type == "vehicle" && slug.current ==
   overview,
   image ${FIGURE},
   heroImage ${FIGURE},
+  heroVideo{ asset->{ url, mimeType } },
+  sections[]{
+    ...,
+    media{ image ${FIGURE}, mobileImage ${FIGURE}, "video": video.asset->url },
+    background{ image ${FIGURE}, mobileImage ${FIGURE}, "video": video.asset->url },
+    "video": video.asset->url,
+    image ${FIGURE},
+    overline ${FIGURE},
+    items[]{ ..., image ${FIGURE}, "video": video.asset->url }
+  },
   specs[]{ _key, value, label },
+  specsImage ${FIGURE},
+  specsLink ${LINK},
+  featureImage ${FIGURE},
+  carousel{ heading, intro, slides[]{ _key, caption, image ${FIGURE} } },
+  features[]{ _key, heading, body, image ${FIGURE} },
+  banner{ heading, body, link ${LINK}, image ${FIGURE} },
   gallery[]{ _key, category, ${FIGURE_FIELDS} },
   spin360{
     enabled,
     frames[]{ _key, ${FIGURE_FIELDS} }
   },
+  specTableHeading,
+  specTableIntro,
+  specVariants,
   specGroups[]{
     _key,
     title,
-    rows[]{ _key, label, value }
+    rows[]{ _key, label, value, values }
   },
+  disclaimers,
   seo{ title, description, ogImage ${FIGURE} },
   testDriveLink ${LINK}
 }`
