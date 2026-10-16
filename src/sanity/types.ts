@@ -87,6 +87,8 @@ export interface SpecRow {
   _key: string
   label?: LocaleString | null
   value?: LocaleString | null
+  /** One per entry in VehicleDetail.specVariants, replacing `value`. */
+  values?: (LocaleString | null)[] | null
 }
 
 export interface SpecGroup {
@@ -95,9 +97,159 @@ export interface SpecGroup {
   rows?: SpecRow[] | null
 }
 
+export interface VehicleSlide {
+  _key: string
+  image?: Figure | null
+  caption?: LocaleString | null
+}
+
+export interface VehicleFeature {
+  _key: string
+  image?: Figure | null
+  heading?: LocaleString | null
+  body?: LocaleText | null
+}
+
+/* ---- Vehicle page sections (the "Page sections" tab in the Studio) ---- */
+
+export interface CtaButton {
+  _key?: string
+  label?: LocaleString | null
+  href?: string | null
+  external?: boolean | null
+  style?: 'primary' | 'secondary' | 'tertiary' | null
+  hidden?: boolean | null
+}
+
+/** Desktop/mobile images plus an optional silent video loop (its URL). */
+export interface ResponsiveMedia {
+  image?: Figure | null
+  mobileImage?: Figure | null
+  video?: string | null
+}
+
+export interface SectionSpacing {
+  top?: 'none' | 'tiny' | 'normal' | 'large' | null
+  bottom?: 'none' | 'tiny' | 'normal' | 'large' | null
+}
+
+export type SectionTheme = 'black' | 'white' | null
+
+export interface HeroMediaSection {
+  _type: 'heroMedia'
+  _key: string
+  title?: LocaleText | null
+  titleAccent?: boolean | null
+  isPageH1?: boolean | null
+  body?: LocaleText | null
+  media?: ResponsiveMedia | null
+  buttons?: CtaButton[] | null
+  align?: 'left' | 'center' | null
+  valign?: 'top' | 'middle' | 'bottom' | null
+  gradient?: 'none' | 'bottom' | 'start' | null
+  desktopAspect?: string | null
+  mobileAspect?: string | null
+}
+
+export interface IntroTextSection {
+  _type: 'introText'
+  _key: string
+  overline?: Figure | null
+  title?: LocaleString | null
+  body?: LocaleText | null
+  buttons?: CtaButton[] | null
+  align?: 'left' | 'center' | null
+  theme?: SectionTheme
+  spacing?: SectionSpacing | null
+}
+
+export interface FullWidthVideoSection {
+  _type: 'fullWidthVideo'
+  _key: string
+  video?: string | null
+  controls?: boolean | null
+  theme?: SectionTheme
+  spacing?: SectionSpacing | null
+}
+
+export interface StatsBlockSection {
+  _type: 'statsBlock'
+  _key: string
+  title?: LocaleString | null
+  body?: LocaleText | null
+  background?: ResponsiveMedia | null
+  gradient?: 'none' | 'bottom' | 'start' | null
+  stats?: {
+    _key: string
+    value?: string | null
+    label?: LocaleText | null
+    hasDisclaimer?: boolean | null
+  }[] | null
+}
+
+export interface FeatureCarouselSection {
+  _type: 'featureCarousel'
+  _key: string
+  heading?: LocaleString | null
+  items?: {
+    _key: string
+    image?: Figure | null
+    video?: string | null
+    title?: LocaleString | null
+    body?: LocaleText | null
+    button?: CtaButton | null
+  }[] | null
+  itemsPerView?: number | null
+  showArrows?: boolean | null
+  button?: CtaButton | null
+  theme?: SectionTheme
+  spacing?: SectionSpacing | null
+}
+
+export interface ImageTextSection {
+  _type: 'imageText'
+  _key: string
+  image?: Figure | null
+  title?: LocaleString | null
+  body?: LocaleText | null
+  reverse?: boolean | null
+  theme?: SectionTheme
+  spacing?: SectionSpacing | null
+}
+
+export type VehicleSection =
+  | HeroMediaSection
+  | IntroTextSection
+  | FullWidthVideoSection
+  | StatsBlockSection
+  | FeatureCarouselSection
+  | ImageTextSection
+
 export interface VehicleDetail extends Vehicle {
   overview?: LocaleText | null
   heroImage?: Figure | null
+  heroVideo?: VideoFile | null
+  /** When present, the page body renders from these instead of the fixed fields. */
+  sections?: VehicleSection[] | null
+  specsImage?: Figure | null
+  specsLink?: Link | null
+  featureImage?: Figure | null
+  carousel?: {
+    heading?: LocaleString | null
+    intro?: LocaleText | null
+    slides?: VehicleSlide[] | null
+  } | null
+  features?: VehicleFeature[] | null
+  banner?: {
+    image?: Figure | null
+    heading?: LocaleString | null
+    body?: LocaleText | null
+    link?: Link | null
+  } | null
+  specTableHeading?: LocaleString | null
+  specTableIntro?: LocaleString | null
+  specVariants?: LocaleString[] | null
+  disclaimers?: LocaleText[] | null
   gallery?: GalleryImage[] | null
   spin360?: {
     enabled?: boolean | null

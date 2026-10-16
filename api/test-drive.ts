@@ -17,7 +17,8 @@
  * Required environment variables (server-side, NOT prefixed with VITE_):
  *   SANITY_PROJECT_ID
  *   SANITY_DATASET
- *   SANITY_WRITE_TOKEN   — Editor permissions
+ *   SANITY_WRITE_TOKEN   — Editor permissions. SANITY_API_WRITE_TOKEN, the
+ *                          name Vercel's Sanity integration creates, also works.
  */
 
 import { createClient } from '@sanity/client'
@@ -29,9 +30,9 @@ import { createClient } from '@sanity/client'
  */
 function getClient() {
   const projectId = process.env.SANITY_PROJECT_ID
-  const token = process.env.SANITY_WRITE_TOKEN
+  const token = process.env.SANITY_WRITE_TOKEN || process.env.SANITY_API_WRITE_TOKEN
   if (!projectId) throw new Error('SANITY_PROJECT_ID is not set on the server')
-  if (!token) throw new Error('SANITY_WRITE_TOKEN is not set on the server')
+  if (!token) throw new Error('SANITY_WRITE_TOKEN (or SANITY_API_WRITE_TOKEN) is not set on the server')
   return createClient({
     projectId,
     dataset: process.env.SANITY_DATASET || 'production',
