@@ -6,7 +6,7 @@ with gallery and 360° view, and a test-drive booking form.
 
 **Stack:** Vite 5 · React 18 · TypeScript · Tailwind CSS · React Router · Sanity client · Vercel
 
-> The Sanity Studio (where editors change content) is **not** in this repo.
+> The Sanity Studio (where editors change content) and its schema live in [`studio/`](studio/), a separate package: `cd studio && npm install && npm run dev`.
 
 ## Getting started
 
