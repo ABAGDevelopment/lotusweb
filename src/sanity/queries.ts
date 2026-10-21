@@ -10,6 +10,8 @@
  * the first property read. Filtering first drops them server-side.
  */
 
+import { LIVE_OFFER } from '@/lib/offerEnquiry'
+
 const FIGURE_FIELDS = /* groq */ `
   alt,
   hotspot,
@@ -181,7 +183,7 @@ export const SITE_QUERY = /* groq */ `{
   },
 
   "footer": *[_type == "footer"][0]{
-    wordmark,
+    logo{ alt, "url": asset->url },
     columns[]{ _key, title, links[]{ _key, label, href, external } },
     socialTitle,
     socialLinks[]{ _key, platform, url },
@@ -206,7 +208,8 @@ export const LISTEN_QUERY = /* groq */ `*[
     "serviceFeature",
     "showroom",
     "footer",
-    "testDrivePage"
+    "testDrivePage",
+    "offersPage"
   ] && !(_id in path("drafts.**"))
 ]`
 
@@ -227,7 +230,8 @@ export const VEHICLE_QUERY = /* groq */ `*[_type == "vehicle" && slug.current ==
     "video": video.asset->url,
     image ${FIGURE},
     overline ${FIGURE},
-    items[]{ ..., image ${FIGURE}, "video": video.asset->url }
+    items[]{ ..., image ${FIGURE}, "video": video.asset->url },
+    views[]{ ..., image ${FIGURE} }
   },
   specs[]{ _key, value, label },
   specsImage ${FIGURE},
@@ -299,4 +303,43 @@ export const SHOWROOM_OPTIONS_QUERY = /* groq */ `*[_type == "showroom"]{
   name,
   address,
   image ${FIGURE}
+}`
+
+const OFFER_CARD = /* groq */ `
+  _id,
+  "slug": slug.current,
+  title,
+  summary,
+  badge,
+  endDate,
+  ctaLabel,
+  image ${FIGURE}
+`
+
+/** /offers: the page copy and every live offer, in the editors' order. Needs $today. */
+export const OFFERS_QUERY = /* groq */ `{
+  "page": *[_type == "offersPage"][0]{
+    heading, intro, image ${FIGURE}, emptyState, validUntil,
+    seo{ title, description, ogImage ${FIGURE} }
+  },
+  "offers": *[${LIVE_OFFER}] | order(coalesce(sortOrder, 1000) asc, _createdAt desc){ ${OFFER_CARD} }
+}`
+
+/** One live offer by slug, plus the shared page labels. Needs $slug and $today. */
+export const OFFER_QUERY = /* groq */ `{
+  "page": *[_type == "offersPage"][0]{
+    backToOffers, startsLabel, endsLabel, termsHeading,
+    formHeading, formIntro, fullName, email, phone, phonePlaceholder, model, modelPlaceholder,
+    contactMethod, contactPhone, contactEmail, contactWhatsapp, consent, privacyLink ${LINK},
+    submit, submitting, successHeading, successBody
+  },
+  "offer": *[${LIVE_OFFER} && slug.current == $slug][0]{
+    ${OFFER_CARD},
+    startDate,
+    heroImage ${FIGURE},
+    body,
+    terms,
+    modelOptions[defined(en)]{ _key, en, ar },
+    seo{ title, description, ogImage ${FIGURE} }
+  }
 }`

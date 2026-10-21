@@ -1,17 +1,19 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { faChevronLeft, faChevronRight, faXmark } from '@fortawesome/free-solid-svg-icons'
 import CmsLink from '@/components/common/CmsLink'
 import SanityImage from '@/components/common/SanityImage'
 import FlipNumber from '@/components/Index/FlipNumber'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { ui } from '@/i18n/ui'
+import { aspectRatio } from '@/sanity/image'
 import { cn } from '@/lib/utils'
 import type {
   CtaButton,
   FeatureCarouselSection,
   FullWidthVideoSection,
   HeroMediaSection,
+  HotspotViewerSection,
   ImageTextSection,
   IntroTextSection,
   ResponsiveMedia,
@@ -211,12 +213,18 @@ function Intro({ s }: { s: IntroTextSection }) {
     <section
       className={cn(light ? 'bg-white text-lotus-black' : 'bg-black text-white', pad(s.spacing), SECTION_X)}
     >
-      <div className={cn('mx-auto max-w-2xl', center && 'flex flex-col items-center text-center')}>
+      <div className={cn(center ? 'mx-auto flex max-w-2xl flex-col items-center text-center' : 'max-w-3xl')}>
         {s.overline?.asset ? (
           <SanityImage image={s.overline} sizes="200px" className="mb-8 h-12 w-auto object-contain" />
         ) : null}
         {t(s.title) ? (
-          <h2 className={cn(DISPLAY, 'text-2xl leading-[1.3] lg:text-[30px] lg:leading-[1.35]')}>
+          <h2
+            className={cn(
+              DISPLAY,
+              'whitespace-pre-line text-2xl leading-[1.3] lg:text-[30px] lg:leading-[1.35]',
+              s.titleAccent && 'text-lotus-yellow',
+            )}
+          >
             {t(s.title)}
           </h2>
         ) : null}
@@ -338,7 +346,7 @@ function Carousel({ s }: { s: FeatureCarouselSection }) {
   const { t, locale, isRtl } = useLocale()
   const ref = useRef<HTMLDivElement>(null)
   const light = onWhite(s.theme)
-  const perView = s.itemsPerView === 3 ? 3 : 2
+  const perView = s.itemsPerView === 3 ? 3 : s.itemsPerView === 1 ? 1 : 2
   const items = (s.items ?? []).filter((x) => x.image?.asset || x.video || t(x.title))
   if (!items.length) return null
 
@@ -359,7 +367,7 @@ function Carousel({ s }: { s: FeatureCarouselSection }) {
             {t(s.heading) || t(items[0]?.title)}
           </h2>
           {arrows ? (
-            <div className="flex shrink-0 gap-3">
+            <div className="ms-auto flex shrink-0 gap-3">
               {([-1, 1] as const).map((dir) => (
                 <button
                   key={dir}
@@ -392,8 +400,12 @@ function Carousel({ s }: { s: FeatureCarouselSection }) {
         {items.map((item) => (
           <article
             key={item._key}
-            className={cn('w-[80vw] shrink-0 snap-start', perView === 3 ? 'md:w-[27vw]' : 'md:w-[40vw]')}
+            className={cn(
+              'w-[80vw] shrink-0 snap-start',
+              perView === 3 ? 'md:w-[27vw]' : perView === 1 ? 'md:w-[72vw]' : 'md:w-[40vw]',
+            )}
           >
+            {item.video || item.image?.asset ? (
             <div className={cn('relative overflow-hidden', perView === 3 ? 'aspect-[4/3]' : 'aspect-[3/2]')}>
               {item.video ? (
                 <video
@@ -415,6 +427,7 @@ function Carousel({ s }: { s: FeatureCarouselSection }) {
                 />
               ) : null}
             </div>
+            ) : null}
             {t(item.title) ? <h3 className="mt-4 text-sm font-semibold leading-5">{t(item.title)}</h3> : null}
             {t(item.body) ? (
               <p
@@ -485,6 +498,160 @@ function ImageText({ s }: { s: ImageTextSection }) {
   )
 }
 
+/**
+ * A photo with numbered pins; each opens a short note. Views (Front, Rear,
+ * Interior) switch through tabs. The image keeps its own shape so the pins,
+ * placed as percentages of it, stay on the parts they describe.
+ */
+function Hotspots({ s }: { s: HotspotViewerSection }) {
+  const { t, locale, isRtl } = useLocale()
+  const [tab, setTab] = useState(0)
+  const [open, setOpen] = useState<string | null>(null)
+  const scroller = useRef<HTMLDivElement>(null)
+  const views = (s.views ?? []).filter((v) => v.image?.asset)
+
+  // Phones show the photo wider than the screen; start each view centred.
+  // scrollLeft runs negative in RTL.
+  useEffect(() => {
+    const el = scroller.current
+    if (el) el.scrollLeft = ((el.scrollWidth - el.clientWidth) / 2) * (isRtl ? -1 : 1)
+  }, [tab, isRtl])
+
+  if (!views.length) return null
+
+  const view = views[Math.min(tab, views.length - 1)]
+  const pins = (view.pins ?? []).filter((p) => p.x != null && p.y != null && t(p.body))
+  const active = pins.find((p) => p._key === open)
+  const Heading = s.isPageH1 ? 'h1' : 'h2'
+  const noteId = `${s._key}-note`
+  const panelId = `${s._key}-view`
+
+  return (
+    <section
+      className="relative bg-black text-white"
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') setOpen(null)
+      }}
+    >
+      {t(s.title) ? (
+        <div className={cn('pt-24 md:pointer-events-none md:absolute md:inset-x-0 md:top-0 md:z-10 md:pt-28', SECTION_X)}>
+          <Heading
+            className={cn(
+              DISPLAY,
+              'whitespace-pre-line text-[32px] leading-[1.2] lg:text-[44px] lg:leading-[1.15]',
+              s.titleAccent ? 'text-lotus-yellow' : 'text-white',
+            )}
+          >
+            {t(s.title)}
+          </Heading>
+        </div>
+      ) : null}
+
+      {/* The note is positioned against this wrapper on desktop and sits
+          below the photo on phones, where the photo is too small for it. */}
+      <div className="relative">
+        {/* On phones the photo is too small for its pins at screen width, so
+            it renders wider and scrolls sideways (drag or swipe). */}
+        <div
+          ref={scroller}
+          className="overflow-x-auto overscroll-x-contain [scrollbar-width:none] md:overflow-visible"
+        >
+        <div
+          id={panelId}
+          role="tabpanel"
+          className="relative w-[220%] md:w-full"
+          style={{ aspectRatio: aspectRatio(view.image) }}
+        >
+          <SanityImage
+            image={view.image}
+            priority={!!s.isPageH1}
+            sizes="100vw"
+            fallbackAlt={t(view.label)}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          {pins.map((p, i) => (
+            <button
+              key={p._key}
+              type="button"
+              onClick={() => setOpen(open === p._key ? null : p._key)}
+              aria-label={`${ui(locale, 'feature')} ${i + 1}`}
+              aria-expanded={open === p._key}
+              aria-controls={open === p._key ? noteId : undefined}
+              // Pins are placed on the photo, which never mirrors, so they use
+              // physical left/top in both reading directions.
+              style={{ left: `${p.x}%`, top: `${p.y}%` }}
+              className="absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 ring-1 ring-white/40 backdrop-blur-sm transition-shadow hover:ring-lotus-yellow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lotus-yellow aria-expanded:ring-2 aria-expanded:ring-lotus-yellow"
+            >
+              <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-lotus-yellow" />
+            </button>
+          ))}
+        </div>
+        </div>
+
+        {active ? (
+          <div
+            id={noteId}
+            aria-live="polite"
+            // Placed next to its pin from md up; below the photo on phones.
+            style={{ '--x': `${active.x}%`, '--y': `${active.y}%` } as CSSProperties}
+            className={cn(
+              'relative mx-5 mt-4 border border-white/15 bg-black/85 p-5 pe-11 text-sm font-light leading-6 backdrop-blur md:absolute md:left-[var(--x)] md:top-[var(--y)] md:mx-0 md:mt-0 md:w-72',
+              // Open away from the nearer edge so the note stays on the photo.
+              (active.x ?? 0) > 55 ? 'md:-translate-x-[calc(100%_+_1.5rem)]' : 'md:translate-x-6',
+              (active.y ?? 0) > 70 ? 'md:-translate-y-full' : (active.y ?? 0) > 25 && 'md:-translate-y-1/2',
+            )}
+          >
+            {t(active.body)}
+            <button
+              type="button"
+              onClick={() => setOpen(null)}
+              aria-label={ui(locale, 'close')}
+              className="absolute end-2 top-2 flex h-8 w-8 items-center justify-center text-white/70 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lotus-yellow"
+            >
+              <FontAwesomeIcon icon={faXmark} className="h-3.5" />
+            </button>
+          </div>
+        ) : null}
+      </div>
+
+      {views.length > 1 || s.buttons?.length ? (
+        <div className={cn('flex flex-col items-center gap-6 py-8 md:py-10', SECTION_X)}>
+          {views.length > 1 ? (
+            <div role="tablist" className="flex flex-wrap justify-center gap-x-8 gap-y-3">
+              {views.map((v, i) => (
+                <button
+                  key={v._key}
+                  type="button"
+                  role="tab"
+                  aria-selected={i === tab}
+                  aria-controls={panelId}
+                  onClick={() => {
+                    setTab(i)
+                    setOpen(null)
+                  }}
+                  className={cn(
+                    'border-b pb-1 text-xs uppercase tracking-[0.15em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lotus-yellow',
+                    i === tab ? 'border-lotus-yellow text-white' : 'border-transparent text-white/55 hover:text-white',
+                  )}
+                >
+                  {t(v.label)}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          {s.buttons?.length ? (
+            <div className="flex flex-wrap justify-center gap-4">
+              {s.buttons.map((b) => (
+                <Cta key={b._key} button={b} />
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </section>
+  )
+}
+
 export default function VehicleSections({ sections }: { sections: VehicleSection[] }) {
   return (
     <>
@@ -502,6 +669,8 @@ export default function VehicleSections({ sections }: { sections: VehicleSection
             return <Carousel key={s._key} s={s} />
           case 'imageText':
             return <ImageText key={s._key} s={s} />
+          case 'hotspotViewer':
+            return <Hotspots key={s._key} s={s} />
           default:
             return null
         }
