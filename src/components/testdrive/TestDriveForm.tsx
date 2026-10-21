@@ -39,7 +39,7 @@ function StepHeader({ n, children }: { n: number; children: ReactNode }) {
   )
 }
 
-function FieldError({ message }: { message?: string }) {
+export function FieldError({ message }: { message?: string }) {
   return message ? (
     <span role="alert" className="mt-3 block text-xs leading-4 text-[#d32f2f]">
       {message}
@@ -48,10 +48,10 @@ function FieldError({ message }: { message?: string }) {
 }
 
 /** Outline a card while its hidden radio has keyboard focus. */
-const CARD_FOCUS =
+export const CARD_FOCUS =
   'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-black'
 
-function Checkbox({
+export function Checkbox({
   checked,
   onChange,
   invalid,

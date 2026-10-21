@@ -57,11 +57,12 @@ export function useLiveQuery<T>(
       setError(err instanceof Error ? err : new Error(String(err)))
     } finally {
       inFlight.current = false
-      if (!mounted.current) return
-      setLoading(false)
-      if (queued.current) {
-        queued.current = false
-        void fetchContent()
+      if (mounted.current) {
+        setLoading(false)
+        if (queued.current) {
+          queued.current = false
+          void fetchContent()
+        }
       }
     }
   }, [query, paramsKey])

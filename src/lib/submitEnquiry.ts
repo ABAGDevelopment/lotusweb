@@ -25,29 +25,15 @@ const ENDPOINT = (import.meta.env.ENQUIRY_ENDPOINT ?? '').trim()
 /** Vercel functions time out around 10s; allow a little headroom. */
 const TIMEOUT_MS = 20_000
 
-export async function submitEnquiry(payload: EnquiryPayload): Promise<void> {
-  if (!ENDPOINT) {
-    if (import.meta.env.DEV) {
-      // Without an endpoint the form would silently pretend to work, which is
-      // the failure mode that hides broken forms in production. Be loud in dev.
-      console.warn(
-        '[lotus] ENQUIRY_ENDPOINT is not set — the enquiry was NOT sent anywhere.\n' +
-          'Payload that would have been submitted:',
-        payload,
-      )
-      return
-    }
-    throw new Error('Enquiry endpoint is not configured (ENQUIRY_ENDPOINT).')
-  }
-
-  // Without a timeout a stalled endpoint leaves the button spinning forever
-  // with nothing to tell the user. Fail loudly instead.
+/**
+ * POST JSON with a timeout. Without one, a stalled endpoint leaves the button
+ * spinning forever with nothing to tell the user. Fail loudly instead.
+ */
+export async function postJson(url: string, payload: unknown): Promise<Response> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS)
-
-  let response: Response
   try {
-    response = await fetch(ENDPOINT, {
+    return await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -63,6 +49,24 @@ export async function submitEnquiry(payload: EnquiryPayload): Promise<void> {
   } finally {
     clearTimeout(timeout)
   }
+}
+
+export async function submitEnquiry(payload: EnquiryPayload): Promise<void> {
+  if (!ENDPOINT) {
+    if (import.meta.env.DEV) {
+      // Without an endpoint the form would silently pretend to work, which is
+      // the failure mode that hides broken forms in production. Be loud in dev.
+      console.warn(
+        '[lotus] ENQUIRY_ENDPOINT is not set — the enquiry was NOT sent anywhere.\n' +
+          'Payload that would have been submitted:',
+        payload,
+      )
+      return
+    }
+    throw new Error('Enquiry endpoint is not configured (ENQUIRY_ENDPOINT).')
+  }
+
+  const response = await postJson(ENDPOINT, payload)
 
   if (!response.ok) {
     const detail = await response.text().catch(() => '')

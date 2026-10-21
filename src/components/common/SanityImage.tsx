@@ -14,6 +14,8 @@ interface SanityImageProps {
   /** Widest variant to request as the `src` fallback. */
   width?: number
   fallbackAlt?: string
+  /** Aim an object-cover crop at the editor's hotspot instead of the centre. */
+  focalPoint?: boolean
 }
 
 /**
@@ -22,7 +24,7 @@ interface SanityImageProps {
  * layout intact instead of collapsing.
  */
 const SanityImage = forwardRef<HTMLImageElement, SanityImageProps>(
-  ({ image, className, sizes = '100vw', priority = false, width = 1920, fallbackAlt = '' }, ref) => {
+  ({ image, className, sizes = '100vw', priority = false, width = 1920, fallbackAlt = '', focalPoint = false }, ref) => {
     const { t } = useLocale()
 
     if (!image?.asset?._id) {
@@ -30,6 +32,7 @@ const SanityImage = forwardRef<HTMLImageElement, SanityImageProps>(
     }
 
     const placeholder = lqip(image)
+    const hotspot = focalPoint ? image.hotspot : null
 
     return (
       <img
@@ -42,15 +45,12 @@ const SanityImage = forwardRef<HTMLImageElement, SanityImageProps>(
         loading={priority ? 'eager' : 'lazy'}
         decoding={priority ? 'sync' : 'async'}
         fetchPriority={priority ? 'high' : 'auto'}
-        style={
-          placeholder
-            ? {
-                backgroundImage: `url(${placeholder})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }
-            : undefined
-        }
+        style={{
+          ...(placeholder
+            ? { backgroundImage: `url(${placeholder})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+            : null),
+          ...(hotspot ? { objectPosition: `${hotspot.x * 100}% ${hotspot.y * 100}%` } : null),
+        }}
       />
     )
   },

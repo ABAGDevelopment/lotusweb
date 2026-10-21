@@ -17,12 +17,13 @@ export default function Footer() {
 
   return (
     <footer className="bg-lotus-black border-t border-lotus-border pt-16 pb-8 md:pt-24 md:pb-12 px-5 md:px-8 lg:px-20">
-      {footer?.wordmark ? (
-        <div className="mb-10 md:mb-24">
-          <div className="font-display text-lg md:text-[12vw] font-bold uppercase tracking-[-0.04em] leading-none text-start md:text-center [--lotus-display-tracking:0.22em] md:[--lotus-display-tracking:inherit] text-lotus-text-off opacity-90">
-            {footer.wordmark}
-          </div>
-        </div>
+      {footer?.logo?.url ? (
+        <img
+          src={footer.logo.url}
+          alt={footer.logo.alt ?? ''}
+          loading="lazy"
+          className="h-12 md:h-16 w-auto mb-12 md:mb-20"
+        />
       ) : null}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-12 md:mb-20">

@@ -3,6 +3,9 @@ import type { ErrorInfo, ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
+import { rememberSource } from './lib/utm'
+
+rememberSource()
 
 type ErrorState = { error: Error | null }
 

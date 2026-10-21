@@ -1,4 +1,4 @@
-import { forwardRef } from 'react'
+import { forwardRef, type InputHTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 import errorIcon from '@/assets/test-drive/error.svg'
 
@@ -14,19 +14,14 @@ import errorIcon from '@/assets/test-drive/error.svg'
  */
 const TextField = forwardRef<
   HTMLInputElement,
-  {
+  Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'prefix'> & {
     label: string
     value: string
     onChange?: (value: string) => void
-    type?: string
-    placeholder?: string
     prefix?: string
-    disabled?: boolean
     error?: string
-    autoComplete?: string
-    className?: string
   }
->(({ label, value, onChange, type = 'text', placeholder, prefix, disabled, error, autoComplete, className }, ref) => (
+>(({ label, value, onChange, type = 'text', prefix, error, className, ...input }, ref) => (
   <label className={cn('flex flex-col gap-2', className)}>
     <span className="text-xs leading-4 tracking-[0.15em] uppercase text-[#5a5a5a]">{label}</span>
     {/* A number with its country code reads left to right in Arabic too. */}
@@ -39,12 +34,10 @@ const TextField = forwardRef<
         </span>
       ) : null}
       <input
+        {...input}
         ref={ref}
         type={type}
         value={value}
-        placeholder={placeholder}
-        disabled={disabled}
-        autoComplete={autoComplete}
         data-invalid={error ? 'true' : 'false'}
         aria-invalid={!!error}
         onChange={(e) => onChange?.(e.target.value)}

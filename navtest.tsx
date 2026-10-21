@@ -1,7 +1,6 @@
 import { renderToString } from 'react-dom/server'
 import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 import { AppProviders } from './src/App'
-import { buildRoutes } from './src/routes'
 import CmsLink from './src/components/common/CmsLink'
 import { LocaleProvider } from './src/i18n/LocaleProvider'
 import type { Locale } from './src/sanity/types'

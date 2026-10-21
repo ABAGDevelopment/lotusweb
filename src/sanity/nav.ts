@@ -65,10 +65,10 @@ export function buildNav(site: SitePayload | null): NavConfig {
         ],
       })),
     secondary: [
-      item('navOffers', '#offers'),
+      item('navOffers', '/offers'),
       item('navService', '#service'),
       item('navStory', '#story'),
     ],
-    utility: [item('navShowrooms', '#showroom'), item('navContact', '#contact')],
+    utility: [item('navShowrooms', '/our-network'), item('navContact', '#contact')],
   }
 }

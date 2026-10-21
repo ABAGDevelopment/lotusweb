@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { imageSrc } from '@/sanity/image'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { useSite } from '@/sanity/ContentProvider'
+import type { Figure } from '@/sanity/types'
 
 function upsertMeta(selector: string, attrs: Record<string, string>) {
   let el = document.head.querySelector<HTMLMetaElement>(selector)
@@ -25,18 +26,34 @@ function upsertLink(rel: string, href: string) {
 /**
  * Keeps <head> in sync with the CMS. Because content streams in live, the
  * title and social tags update with the rest of the page.
+ *
+ * With no props it describes the home page. Other pages pass their own title,
+ * description and share image; the site title is appended to theirs.
+ *
+ * These tags are set in the browser. Google renders them; link-preview bots
+ * (WhatsApp, LinkedIn, X) do not run JavaScript and see index.html's tags.
  */
-export default function SiteHead() {
+export default function SiteHead({
+  title: pageTitle,
+  description: pageDescription,
+  image,
+}: {
+  title?: string
+  description?: string
+  image?: Figure | null
+} = {}) {
   const site = useSite()
   const { t, locale } = useLocale()
 
-  const seo = site?.home?.seo
+  const seo = pageTitle ? null : site?.home?.seo
   const settings = site?.settings
+  const siteTitle = t(settings?.siteTitle) || 'Lotus'
 
-  const title = t(seo?.title) || t(settings?.siteTitle) || 'Lotus'
-  const description = t(seo?.description) || t(settings?.siteDescription)
-  const ogImage = imageSrc(seo?.ogImage ?? settings?.ogImage, 1200)
+  const title = pageTitle ? `${pageTitle} | ${siteTitle}` : t(seo?.title) || siteTitle
+  const description = pageDescription || t(seo?.description) || t(settings?.siteDescription)
+  const ogImage = imageSrc(image ?? seo?.ogImage ?? settings?.ogImage, 1200)
   const favicon = imageSrc(settings?.favicon, 64)
+  const url = typeof window === 'undefined' ? '' : `${window.location.origin}${window.location.pathname}`
 
   useEffect(() => {
     document.title = title
@@ -63,8 +80,12 @@ export default function SiteHead() {
     if (ogImage) {
       upsertMeta('meta[property="og:image"]', { property: 'og:image', content: ogImage })
     }
+    if (url) {
+      upsertMeta('meta[property="og:url"]', { property: 'og:url', content: url })
+      upsertLink('canonical', url)
+    }
     if (favicon) upsertLink('icon', favicon)
-  }, [title, description, ogImage, favicon, locale])
+  }, [title, description, ogImage, favicon, locale, url])
 
   return null
 }

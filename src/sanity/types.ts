@@ -156,6 +156,7 @@ export interface IntroTextSection {
   _key: string
   overline?: Figure | null
   title?: LocaleString | null
+  titleAccent?: boolean | null
   body?: LocaleText | null
   buttons?: CtaButton[] | null
   align?: 'left' | 'center' | null
@@ -217,6 +218,22 @@ export interface ImageTextSection {
   spacing?: SectionSpacing | null
 }
 
+export interface HotspotViewerSection {
+  _type: 'hotspotViewer'
+  _key: string
+  title?: LocaleText | null
+  titleAccent?: boolean | null
+  isPageH1?: boolean | null
+  views?: {
+    _key: string
+    label?: LocaleString | null
+    image?: Figure | null
+    /** x/y are percentages of the image's width and height. */
+    pins?: { _key: string; x?: number | null; y?: number | null; body?: LocaleText | null }[] | null
+  }[] | null
+  buttons?: CtaButton[] | null
+}
+
 export type VehicleSection =
   | HeroMediaSection
   | IntroTextSection
@@ -224,6 +241,7 @@ export type VehicleSection =
   | StatsBlockSection
   | FeatureCarouselSection
   | ImageTextSection
+  | HotspotViewerSection
 
 export interface VehicleDetail extends Vehicle {
   overview?: LocaleText | null
@@ -348,6 +366,90 @@ export interface Offer {
   link?: Link | null
 }
 
+/** Portable Text, limited to what the Studio's localeRichText allows. */
+export interface PortableTextSpan {
+  _key: string
+  _type: 'span'
+  text: string
+  marks?: string[] | null
+}
+
+export interface PortableTextBlock {
+  _key: string
+  _type: 'block'
+  style?: 'normal' | 'h3' | null
+  listItem?: 'bullet' | 'number' | null
+  level?: number | null
+  children?: PortableTextSpan[] | null
+  markDefs?: { _key: string; _type: string; href?: string | null }[] | null
+}
+
+export interface LocaleRichText {
+  en?: PortableTextBlock[] | null
+  ar?: PortableTextBlock[] | null
+}
+
+/** An offer as the /offers card shows it. */
+export interface OfferCardData {
+  _id: string
+  slug: string
+  title?: LocaleString | null
+  summary?: LocaleText | null
+  badge?: LocaleString | null
+  endDate?: string | null
+  ctaLabel?: LocaleString | null
+  image?: Figure | null
+}
+
+export interface OfferDetailData extends OfferCardData {
+  startDate?: string | null
+  heroImage?: Figure | null
+  body?: LocaleRichText | null
+  terms?: LocaleRichText | null
+  modelOptions?: (LocaleString & { _key: string })[] | null
+  seo?: Seo | null
+}
+
+export interface OurNetworkPageDoc {
+  heading?: LocaleString | null
+  intro?: LocaleText | null
+  image?: Figure | null
+  countLabel?: LocaleString | null
+  emptyState?: LocaleText | null
+  seo?: Seo | null
+}
+
+export interface OffersPageDoc {
+  heading?: LocaleString | null
+  intro?: LocaleText | null
+  image?: Figure | null
+  emptyState?: LocaleText | null
+  validUntil?: LocaleString | null
+  backToOffers?: LocaleString | null
+  startsLabel?: LocaleString | null
+  endsLabel?: LocaleString | null
+  termsHeading?: LocaleString | null
+  formHeading?: LocaleString | null
+  formIntro?: LocaleText | null
+  fullName?: LocaleString | null
+  email?: LocaleString | null
+  phone?: LocaleString | null
+  phonePlaceholder?: LocaleString | null
+  model?: LocaleString | null
+  modelPlaceholder?: LocaleString | null
+  contactMethod?: LocaleString | null
+  contactPhone?: LocaleString | null
+  contactEmail?: LocaleString | null
+  contactWhatsapp?: LocaleString | null
+  consent?: LocaleString | null
+  privacyLink?: Link | null
+  submit?: LocaleString | null
+  submitting?: LocaleString | null
+  successHeading?: LocaleString | null
+  successBody?: LocaleText | null
+  seo?: Seo | null
+}
+
 export type ServiceIcon =
   | 'shield'
   | 'gears'
@@ -369,6 +471,9 @@ export interface Showroom {
   _id: string
   image?: Figure | null
   name?: LocaleString | null
+  branchType?: LocaleString | null
+  serviceHoursLabel?: LocaleString | null
+  serviceHours?: LocaleText | null
   locationLabel?: LocaleString | null
   address?: LocaleText | null
   hoursLabel?: LocaleString | null
@@ -569,7 +674,7 @@ export interface SocialLink {
 }
 
 export interface FooterDoc {
-  wordmark?: string | null
+  logo?: { alt?: string | null; url?: string | null } | null
   columns?: FooterColumn[] | null
   socialTitle?: LocaleString | null
   socialLinks?: SocialLink[] | null
