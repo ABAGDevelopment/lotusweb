@@ -209,7 +209,8 @@ export const LISTEN_QUERY = /* groq */ `*[
     "showroom",
     "footer",
     "testDrivePage",
-    "offersPage"
+    "offersPage",
+    "ourNetworkPage"
   ] && !(_id in path("drafts.**"))
 ]`
 
@@ -341,5 +342,21 @@ export const OFFER_QUERY = /* groq */ `{
     terms,
     modelOptions[defined(en)]{ _key, en, ar },
     seo{ title, description, ogImage ${FIGURE} }
+  }
+}`
+
+/** /our-network: the page copy and every showroom, each one a branch. */
+export const OUR_NETWORK_QUERY = /* groq */ `{
+  "page": *[_type == "ourNetworkPage"][0]{
+    heading, intro, image ${FIGURE}, countLabel, emptyState,
+    seo{ title, description, ogImage ${FIGURE} }
+  },
+  "showrooms": *[_type == "showroom"] | order(name.en asc){
+    _id, name, branchType, image ${FIGURE},
+    locationLabel, address,
+    contactLabel, contactText, contactHref,
+    hoursLabel, hours,
+    serviceHoursLabel, serviceHours,
+    directionsLinkText, directionsHref
   }
 }`

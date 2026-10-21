@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/layout/Footer'
 import CmsLink from '@/components/common/CmsLink'
 import PageSkeleton from '@/components/common/PageSkeleton'
-import SanityImage from '@/components/common/SanityImage'
+import PageTitleBand from '@/components/common/PageTitleBand'
 import SiteHead from '@/components/common/SiteHead'
 import OfferCard from '@/components/offers/OfferCard'
 import { SECTION_X } from '@/components/testdrive/TestDriveForm'
@@ -42,25 +42,7 @@ export default function Offers() {
       />
       <Navbar />
       <main>
-        <section className="relative flex h-[300px] flex-col justify-end overflow-hidden bg-black text-white lg:h-[380px]">
-          {page?.image ? (
-            <SanityImage
-              image={page.image}
-              sizes="100vw"
-              priority
-              className="absolute inset-0 h-full w-full object-cover opacity-40"
-            />
-          ) : null}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/40" />
-          <div className={cn('relative pb-10 lg:pb-14', SECTION_X)}>
-            <h1 className="font-display break-words text-[30px] uppercase leading-[1.1] text-lotus-yellow lg:text-[48px] lg:leading-[48px] [--lotus-display-tracking:0.18em] rtl:[--lotus-display-tracking:normal]">
-              {t(page?.heading)}
-            </h1>
-            {t(page?.intro) ? (
-              <p className="mt-5 max-w-[560px] text-base font-light leading-6">{t(page?.intro)}</p>
-            ) : null}
-          </div>
-        </section>
+        <PageTitleBand heading={t(page?.heading)} intro={t(page?.intro)} image={page?.image} />
 
         <section className={cn('bg-lotus-black py-14 lg:py-20', SECTION_X)}>
           {offers.length ? (

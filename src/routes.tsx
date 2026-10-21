@@ -7,6 +7,7 @@ import TestDrive from '@/pages/TestDrive'
 import ThankYou from '@/pages/ThankYou'
 import Offers from '@/pages/Offers'
 import OfferDetail from '@/pages/OfferDetail'
+import OurNetwork from '@/pages/OurNetwork'
 import { LOCALES, LocaleProvider } from '@/i18n/LocaleProvider'
 import ScrollManager from '@/components/common/ScrollManager'
 import type { Locale } from '@/sanity/types'
@@ -35,6 +36,7 @@ export function buildRoutes(defaultLocale: Locale): RouteObject[] {
     { path: 'test-drive/thank-you', element: <ThankYou /> },
     { path: 'offers', element: <Offers /> },
     { path: 'offers/:slug', element: <OfferDetail /> },
+    { path: 'our-network', element: <OurNetwork /> },
     { path: '*', element: <NotFound /> },
   ]
 
@@ -64,6 +66,7 @@ export const EXPECTED_PATHS = [
   '/test-drive/thank-you',
   '/offers',
   '/offers/eletre-x',
+  '/our-network',
   '/ar',
   '/ar/',
   '/ar/vehicles/emira',
@@ -71,4 +74,5 @@ export const EXPECTED_PATHS = [
   '/ar/test-drive/thank-you',
   '/ar/offers',
   '/ar/offers/eletre-x',
+  '/ar/our-network',
 ]

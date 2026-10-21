@@ -69,6 +69,6 @@ export function buildNav(site: SitePayload | null): NavConfig {
       item('navService', '#service'),
       item('navStory', '#story'),
     ],
-    utility: [item('navShowrooms', '#showroom'), item('navContact', '#contact')],
+    utility: [item('navShowrooms', '/our-network'), item('navContact', '#contact')],
   }
 }

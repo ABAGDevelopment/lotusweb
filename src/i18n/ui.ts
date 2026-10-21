@@ -57,6 +57,7 @@ const UI = {
     tooManyEnquiries: 'Too many enquiries from this connection. Wait 10 minutes and send again.',
     enquiryFailed: 'The enquiry was not sent. Check your connection and send again.',
     offersLoadFailed: 'Offers could not load. Check your connection and reload the page.',
+    networkLoadFailed: 'Locations could not load. Check your connection and reload the page.',
   },
   ar: {
     previousOffers: 'العروض السابقة',
@@ -104,6 +105,7 @@ const UI = {
     tooManyEnquiries: 'استفسارات كثيرة من هذا الاتصال. انتظر 10 دقائق ثم أرسل مجددًا.',
     enquiryFailed: 'لم يتم إرسال الاستفسار. تحقق من اتصالك وأرسل مجددًا.',
     offersLoadFailed: 'تعذّر تحميل العروض. تحقق من اتصالك وأعد تحميل الصفحة.',
+    networkLoadFailed: 'تعذّر تحميل المواقع. تحقق من اتصالك وأعد تحميل الصفحة.',
   },
 } as const
 

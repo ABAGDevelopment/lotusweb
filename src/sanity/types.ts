@@ -410,6 +410,15 @@ export interface OfferDetailData extends OfferCardData {
   seo?: Seo | null
 }
 
+export interface OurNetworkPageDoc {
+  heading?: LocaleString | null
+  intro?: LocaleText | null
+  image?: Figure | null
+  countLabel?: LocaleString | null
+  emptyState?: LocaleText | null
+  seo?: Seo | null
+}
+
 export interface OffersPageDoc {
   heading?: LocaleString | null
   intro?: LocaleText | null
@@ -462,6 +471,9 @@ export interface Showroom {
   _id: string
   image?: Figure | null
   name?: LocaleString | null
+  branchType?: LocaleString | null
+  serviceHoursLabel?: LocaleString | null
+  serviceHours?: LocaleText | null
   locationLabel?: LocaleString | null
   address?: LocaleText | null
   hoursLabel?: LocaleString | null
